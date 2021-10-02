@@ -6,7 +6,7 @@ import codecs
 
 DPI = 300
 FIGSIZE = (12,4)
-FONTSIZE = 20
+FONTSIZE = 16
 
 # Billinge group colors
 bg_blue, bg_red, bg_green = '#0B3C5D', '#B82601', '#1c6b0a'
@@ -48,8 +48,9 @@ def ras_to_csv_converter_plotter():
         plt.figure(dpi=DPI, figsize=FIGSIZE)
         plt.plot(tt, int_exp, c=COLOR)
         plt.xlim(np.amin(tt), np.amax(tt))
-        plt.xlabel(r"$2\theta$ $[\degree]$")
-        plt.ylabel(r"$I$ $[\mathrm{counts}]$")
+        plt.xlabel(r"$2\theta$ $[\degree]$", fontsize=FONTSIZE)
+        plt.ylabel(r"$I$ $[\mathrm{counts}]$", fontsize=FONTSIZE)
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
         plt.savefig(f"png/{filename}.png", bbox_inches='tight')
         plt.savefig(f"pdf/{filename}.pdf", bbox_inches='tight')
     print(f"\nras files have been converted to csv files that are saved to the csv folder.\
