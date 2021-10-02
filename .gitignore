@@ -1,10 +1,21 @@
 # Directories to be ignored.
+
+# gr_plotter
 gr_plotter/.ipynb_checkpoints/
 gr_plotter/gr
 gr_plotter/pdf
 gr_plotter/png
+
+# ras-to-csv_converter_plotter
 ras-to-csv_converter_plotter/.ipynb_checkpoints
 ras-to-csv_converter_plotter/csv
 ras-to-csv_converter_plotter/pdf
 ras-to-csv_converter_plotter/png
 ras-to-csv_converter_plotter/ras
+
+# asc-to-csv_converter_plotter
+asc-to-csv_converter_plotter/.ipynb_checkpoints/
+asc-to-csv_converter_plotter/asc
+asc-to-csv_converter_plotter/csv
+asc-to-csv_converter_plotter/pdf
+asc-to-csv_converter_plotter/png
