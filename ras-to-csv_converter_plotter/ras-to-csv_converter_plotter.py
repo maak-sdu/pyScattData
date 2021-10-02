@@ -53,6 +53,7 @@ def ras_to_csv_converter_plotter():
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
         plt.savefig(f"png/{filename}.png", bbox_inches='tight')
         plt.savefig(f"pdf/{filename}.pdf", bbox_inches='tight')
+        plt.close()
     print(f"\nras files have been converted to csv files that are saved to the csv folder.\
             \nPlots have been saved to the png and pdf folders.\n{90*'-'}")
     return None
