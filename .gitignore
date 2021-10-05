@@ -19,3 +19,25 @@ asc-to-csv_converter_plotter/asc
 asc-to-csv_converter_plotter/csv
 asc-to-csv_converter_plotter/pdf
 asc-to-csv_converter_plotter/png
+
+# iq_sq_fq_gr_plot
+iq_sq_fq_gr_plot/data/
+iq_sq_fq_gr_plot/pdf/
+iq_sq_fq_gr_plot/png/
+
+# cgr_Ni-fcc-tethole_plot
+cgr_Ni-fcc-tethole_plot/cgr/
+cgr_Ni-fcc-tethole_plot/pdf/
+cgr_Ni-fcc-tethole_plot/pdfgui/
+cgr_Ni-fcc-tethole_plot/png/
+
+# cif_cgr_calculator_normalized_unix
+cif_cgr_calculator_normalized_unix/cif/
+cif_cgr_calculator_normalized_unix/pdf/
+cif_cgr_calculator_normalized_unix/png/
+
+# cif_cgr_calculator_plotter_unix
+cif_cgr_calculator_plotter_unix/cgr/
+cif_cgr_calculator_plotter_unix/cif/
+cif_cgr_calculator_plotter_unix/pdf/
+cif_cgr_calculator_plotter_unix/png/
