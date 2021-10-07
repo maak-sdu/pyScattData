@@ -1,3 +1,2 @@
-# plotters
-Various plotters for e.g. scattering and electrochemical data,
-but also extracters, converters, writers, etc.
+# pyScattData
+Processing, analysis, and plotting of scattering data.
