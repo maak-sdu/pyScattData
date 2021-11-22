@@ -51,20 +51,34 @@ for cif in cifs:
     r, g = pdfcalc(stru,
                    qmin=QMIN_I, qmax=QMAX_I, qbroad=QBROAD_I, qdamp=QDAMP_I,
                    rmin = RMIN_I, rmax=RMAX_I+RSTEP_I, rstep=RSTEP_I)
+    g_norm = g / max(g)
     np.savetxt(f"cgr/{cif.stem}.cgr", np.column_stack((r, g)), header=header_I,
                 fmt=['%.2f', '%.8f'])
     plt.figure(dpi=DPI, figsize=FIGSIZE)
     plt.plot(r, g, c=COLOR, lw=LINEWIDTH)
     plt.xlim(RMIN_I, RMAX_I)
-    plt.xlabel(r"$r$" "$[\mathrm{\AA}]$", fontsize=FONTSIZE)
-    plt.ylabel(r"$G_{\mathrm{calc}}$" "$[\mathrm{\AA}^{-2}]$", fontsize=FONTSIZE)
-    plt.text(2.16, 17, r'$\downarrow$', c='tab:blue', fontsize=FONTSIZE*2)
-    plt.text(3.19, 3.95, r'$\downarrow$', c='tab:orange', fontsize=FONTSIZE*2)
-    plt.text(3.98, 17.25, r'$\downarrow$', c='tab:green', fontsize=FONTSIZE*2)
-    plt.text(4.66, 5.5, r'$\downarrow$', c='tab:purple', fontsize=FONTSIZE*2)
-    plt.text(5.24, 11.5, r'$\downarrow$', c='tab:blue', fontsize=FONTSIZE*2)
-    plt.text(5.775, 0, r'$\downarrow$', c='tab:cyan', fontsize=FONTSIZE*2)
+    plt.xlabel(r"$r$ $[\mathrm{\AA}]$", fontsize=FONTSIZE)
+    plt.ylabel(r"$G_{\mathrm{calc}}$ $[\mathrm{\AA}^{-2}]$", fontsize=FONTSIZE)
     for folder in folders:
         plt.savefig(f'{folder}/{cif.stem}.{folder}', bbox_inches='tight')
-print(f"{90*'-'}")
+    plt.close()
+    plt.figure(dpi=DPI, figsize=FIGSIZE)
+    plt.plot(r, g_norm, c=COLOR, lw=LINEWIDTH)
+    plt.xlim(RMIN_I, RMAX_I)
+    plt.xlabel(r"$r$ $[\mathrm{\AA}]$", fontsize=FONTSIZE)
+    plt.ylabel(r"$G_{\mathrm{calc}}$ $[\mathrm{\AA}^{-2}]$", fontsize=FONTSIZE)
+    for folder in folders:
+        plt.savefig(f'{folder}/{cif.stem}_normalized.{folder}', bbox_inches='tight')
+    plt.close()
+outputstring = f"Done plotting.\nPlots have been saved to the"
+if len(folders) == 1:
+    outputstring += f" {folders[0]} directory."
+elif len(folders) == 2:
+    outputstring += f" {folders[0]} and {folders[-1]} directories."
+else:
+    for i in range(0, len(folders)-1):
+        outputstring += f" {folders[i]},"
+    outputstring += f" and {folders[-1]} directories.\n{90*'-'}"
+print(outputstring)
+
 # End of file.
