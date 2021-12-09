@@ -48,3 +48,9 @@ h5_extracter_writer_plotter/h5/
 h5_extracter_writer_plotter/pdf/
 h5_extracter_writer_plotter/png/
 h5_extracter_writer_plotter/xy/
+
+# pearson_echem_plotter
+pearson_echem_plotter/data
+pearson_echem_plotter/png
+pearson_echem_plotter/pdf
+pearson_echem_plotter/txt
