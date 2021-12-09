@@ -42,6 +42,11 @@ cif_cgr_calculator_plotter_unix/cif/
 cif_cgr_calculator_plotter_unix/pdf/
 cif_cgr_calculator_plotter_unix/png/
 
+# cif_pxrd_calculator_plotter
+cif_pxrd_calculator_plotter/cif
+cif_pxrd_calculator_plotter/png
+cif_pxrd_calculator_plotter/txt
+
 #  h5_extracter_writer_plotter
 h5_extracter_writer_plotter/example/
 h5_extracter_writer_plotter/h5/
