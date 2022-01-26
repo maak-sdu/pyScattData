@@ -120,22 +120,13 @@ def two_d_array_plot(two_d_array, column_name, file, pixelsize, cmap_desire, cba
                            two_d_array.shape[0] * pixelsize, 0],
                    cmap=cmap_desire
                    )
-        # ax.ticklabel_format(axis="both", style="sci", scilimits=(0,0))
         plt.xlabel(XLABEL, fontsize=FONTSIZE_LABELS)
         plt.ylabel(YLABEL, fontsize=FONTSIZE_LABELS)
         ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-        # ax.set_xlabel(XLABEL)
         ax.xaxis.set_label_position('top')
         ax.xaxis.tick_top()
         cbar = plt.colorbar(im, ax=ax, anchor=(0,1), shrink=SHRINK)
         cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
-        # if not isinstance(cbar_limits, type(None)):
-        #     cbar_limits = cbar_limits.split(",")
-        #     cbar_min, cbar_max = float(cbar_limits[0]), float(cbar_limits[1])
-        #     if cbar_max > CBAR_SCILIMIT:
-        #         cbar.ax.ticklabel_format(style="sci", scilimits=(0,0))
-        # elif np.amax(two_d_array) > CBAR_SCILIMIT:
-        #     cbar.ax.ticklabel_format(style="sci", scilimits=(0,0))
         if column_name.lower() == 'scan_number':
             cbar.set_label(label=r"Scan Number", size=FONTSIZE_LABELS)
         elif column_name.lower() == 'r_wp':
