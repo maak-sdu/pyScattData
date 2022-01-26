@@ -24,11 +24,11 @@ iq_sq_fq_gr_plot/data/
 iq_sq_fq_gr_plot/pdf/
 iq_sq_fq_gr_plot/png/
 
-# cgr_Ni-fcc-tethole_plot
-cgr_Ni-fcc-tethole_plot/cgr/
-cgr_Ni-fcc-tethole_plot/pdf/
-cgr_Ni-fcc-tethole_plot/pdfgui/
-cgr_Ni-fcc-tethole_plot/png/
+# cgr_Ni_fcc_tethole
+cgr_Ni_fcc_tethole/cgr/
+cgr_Ni_fcc_tethole/pdf/
+cgr_Ni_fcc_tethole/pdfgui/
+cgr_Ni_fcc_tethole/png/
 
 # cif_cgr_calculator_normalized_unix
 cif_cgr_calculator_normalized_unix/cif/
