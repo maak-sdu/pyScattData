@@ -1,4 +1,5 @@
-This code is made for Postdoc Christian Kolle Christensen of the Ravnsbæk Group.
+This code is made for Postdoc Christian Kolle Christensen of the Ravnsbæk Group
+in the Autumn of 2021 and Spring of 2022.
 
 From a powder x-ray diffraction mapping experiment, the results of the
 corresponding Rietveld refinements have been exported as 1D columns.
