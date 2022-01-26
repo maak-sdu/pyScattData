@@ -8,27 +8,15 @@ FIGSIZE = (12,4)
 FONTSIZE = 16
 
 # Billinge group colors
-bg_blue, bg_red, bg_green = '#0B3C5D', '#B82601', '#1c6b0a'
-bg_lightblue, bg_darkblue, bg_yellow = '#328CC1', '#062F4F', '#D9B310'
-bg_darkred, bg_bordeaux, bg_olivegreen = '#984B43', '#76323F', '#626E60'
-bg_yellowgrey, bg_brownorange = '#AB987A', '#C09F80'
+COLORS = dict(bg_blue='#0B3C5D', bg_red='#B82601', bg_green='#1c6b0a',
+              bg_lightblue='#328CC1', bg_darkblue='#062F4F', bg_yellow='#D9B310',
+              bg_darkred='#984B43', bg_bordeaux='#76323F', bg_olivegreen='#626E60',
+              bg_yellowgrey='#AB987A', bg_brownorange='#C09F80')
+COLOR = COLORS["bg_blue"]
 
-COLOR = bg_blue
-
-def asc_to_csv_converter_plotter():
-    if not (Path.cwd() / 'asc').exists():
-        print(f"{90*'-'}\nPlease make a folder called 'asc' and place your files there.\
-                \n{90*'-'}")
-    files = list((Path.cwd() / 'asc').glob("*.asc"))
-    if len(files) == 0:
-        print(f"{90*'-'}\nPlease place your files in the 'asc' folder.\
-                \n{90*'-'}")
-    print(f"{90*'-'}\nConverting asc files to csv files and plotting...")
-    folders = ['csv', 'png', 'pdf']
-    for folder in folders:
-        if not (Path.cwd() / folder).exists():
-            (Path.cwd() / folder).mkdir()
+def asc_to_csv_converter_plotter(files):
     for e in files:
+        print(f"\t{e.name}")
         filename = e.stem
         with open(e) as f:
             lines = f.readlines()
@@ -60,12 +48,28 @@ def asc_to_csv_converter_plotter():
         plt.savefig(f"png/{filename}.png", bbox_inches='tight')
         plt.savefig(f"pdf/{filename}.pdf", bbox_inches='tight')
         plt.close()
-    print(f"\nras files have been converted to csv files that are saved to the csv folder.\
-            \nPlots have been saved to the png and pdf folders.\n{90*'-'}")
+    print(f"\n.asc files have been converted to .csv files and saved to the 'csv' folder.\
+            \nPlots have been saved to the 'png' and 'pdf' folders.\n{90*'-'}")
+
     return None
 
 def main():
-    asc_to_csv_converter_plotter()
+    if not (Path.cwd() / 'asc').exists():
+        (Path.cwd() / 'asc').mkdir()
+        print(f"{90*'-'}\nA folder called 'asc' has been made. Please place your files there and rerun the code.\
+                \n{90*'-'}")
+        sys.exit()
+    files = list((Path.cwd() / 'asc').glob("*.asc"))
+    if len(files) == 0:
+        print(f"{90*'-'}\nNo .asc files found in the 'asc' folder. Please place your files there and rerun the code.\
+                \n{90*'-'}")
+        sys.exit()
+    print(f"{90*'-'}\nConverting asc files to csv files and plotting...")
+    folders = ['csv', 'png', 'pdf']
+    for folder in folders:
+        if not (Path.cwd() / folder).exists():
+            (Path.cwd() / folder).mkdir()
+    asc_to_csv_converter_plotter(files)
 
     return None
 
