@@ -23,12 +23,15 @@ for folder in folders:
         (Path.cwd() / folder).mkdir()
 cgrpath = Path.cwd() / 'cgr'
 if not cgrpath.exists():
-    print(f"{90*'-'}\nPlease create a folder called 'cgr' and place your .cgr files there.\
+    cgrpath.mkdir()
+    print(f"{90*'-'}\nA folder called 'cgr' has been made.\
+            \nPlease place your .cgr files there and rerun the code.\
             \n{90*'-'}")
     sys.exit()
 files = list((Path.cwd() / 'cgr').glob('*.cgr'))
 if len(files) == 0:
-    print(f"{90*'-'}\nPlease place your .cgr files in the cgr folder.\
+    print(f"{90*'-'}\nNo .cgr files found in the 'cgr' folder.\
+            \nPlease place your .cgr files there and rerun the code..\
             \n{90*'-'}")
     sys.exit()
 if len(files) != len(LABELS):
