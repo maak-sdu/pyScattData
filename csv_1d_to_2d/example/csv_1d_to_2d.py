@@ -13,7 +13,6 @@ SHRINK = 0.935
 FONTSIZE_LABELS = 20
 FONTSIZE_TICKS = 14
 CBAR_SCILIMIT = 10**3
-
 CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
          10: 'YlOrBr', 11:'YlOrRd', 12:'OrRd', 13:'PuRd', 14:'RdPu',
@@ -29,6 +28,7 @@ CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          60:'cubehelix', 61:'brg', 62:'gist_rainbow', 63:'rainbow', 64:'jet',
          65:'turbo', 66:'nipy_spectral', 67:'gist_ncar'}
 
+
 def one_to_two_d(file):
     d = {}
     print(f"File:\t{file.name}")
@@ -39,18 +39,18 @@ def one_to_two_d(file):
     d[cols[0]] = list(df[cols[0]])
     for i in range(1, len(cols)):
         d[cols[i]] = df[cols[i]].to_numpy()
-    print(f"\n\tThe following columns are present:")
+    print(f"\n\tThe following quantities are present:")
     for k in d.keys():
         if not 'unnamed' in k.lower():
             print(f"\t\t{k}")
     col_len = len(d[list(d.keys())[0]])
-    matrix_cols = int(input(f"\n\tThe length of the individual columns is: {col_len}\
-            \n\n\tPlease provide the desired number of columns for the new matrix: "))
-    nor = int(col_len / matrix_cols)
-    print(f"\tNumber of rows: {nor}")
+    nor = int(input(f"\n\tThe length of the 1D column is: {col_len}\
+            \n\n\tPlease provide the desired number of rows for the new matrix: "))
+    noc = int(col_len / nor)
+    print(f"\tNumber of columns: {noc}")
     # pixelsize = float(input(f"\tPlease provide the pixelsize in µm: "))
     pixelsize = PIXELSIZE
-    plot_default = input("\n\tDo you want to plot all columns with default settings? (y/n): ")
+    plot_default = input("\n\tDo you want to plot all quantities with default settings? (y/n): ")
     if plot_default == "n":
         print("\tNumber\tColormap")
         for k,v in CMAPS.items():
@@ -65,9 +65,9 @@ def one_to_two_d(file):
             if isinstance(d[k], np.ndarray) and 'unnamed' not in k.lower():
                 print(f"\t\t{k}")
                 num_header = '1'
-                for i in range(1, nor):
+                for i in range(1, noc):
                     num_header += f"\t{i+1}"
-                new_array = np.reshape(d[k], (matrix_cols, nor))
+                new_array = np.reshape(d[k], (nor, noc))
                 np.savetxt(f"{file.stem}/txt/{file.stem}_{k}.txt", new_array,
                            fmt='%.5e', encoding='utf-8', header=num_header,
                            comments='')
@@ -81,13 +81,14 @@ def one_to_two_d(file):
                     cbar_limits = None
                 two_d_array_plot(new_array, k, file, pixelsize, cmap_desire, cbar_limits)
         except ValueError:
-            print(f"{90*'-'}\nValueError: cannot reshape array of size {col_len} into shape ({matrix_cols},{nor})\
+            print(f"{90*'-'}\nValueError: cannot reshape array of size {col_len} into shape ({nor},{noc})\
                     \nPlease rerun the code and provide a proper number of columns for the 2D array.\
                     \n{90*'-'}")
             sys.exit()
     print(f"\n\ttxt files containing {new_array.shape} arrays have been saved to the txt directory.\
             \n\tPlots have been saved to the 'pdf' and 'png' directories.\
             \n{90*'-'}")
+
     return plot_default, cmap_desire
 
 
@@ -128,11 +129,13 @@ def two_d_array_plot(two_d_array, column_name, file, pixelsize, cmap_desire, cba
         ax.xaxis.tick_top()
         cbar = plt.colorbar(im, ax=ax, anchor=(0,1), shrink=SHRINK)
         cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
-        if not isinstance(cbar_limits, type(None)):
-            if cbar_max > CBAR_SCILIMIT:
-                cbar.ax.ticklabel_format(style="sci", scilimits=(0,0))
-        elif np.amax(two_d_array) > CBAR_SCILIMIT:
-            cbar.ax.ticklabel_format(style="sci", scilimits=(0,0))
+        # if not isinstance(cbar_limits, type(None)):
+        #     cbar_limits = cbar_limits.split(",")
+        #     cbar_min, cbar_max = float(cbar_limits[0]), float(cbar_limits[1])
+        #     if cbar_max > CBAR_SCILIMIT:
+        #         cbar.ax.ticklabel_format(style="sci", scilimits=(0,0))
+        # elif np.amax(two_d_array) > CBAR_SCILIMIT:
+        #     cbar.ax.ticklabel_format(style="sci", scilimits=(0,0))
         if column_name.lower() == 'scan_number':
             cbar.set_label(label=r"Scan Number", size=FONTSIZE_LABELS)
         elif column_name.lower() == 'r_wp':
@@ -169,6 +172,7 @@ def two_d_array_plot(two_d_array, column_name, file, pixelsize, cmap_desire, cba
             plt.savefig(f"{file.stem}/png/{file.stem}_{column_name}_{cbar_min}-{cbar_max}.png", bbox_inches='tight')
             plt.savefig(f"{file.stem}/pdf/{file.stem}_{column_name}_{cbar_min}-{cbar_max}.pdf", bbox_inches='tight')
         else:
+            cbar.ax.ticklabel_format(style="sci", scilimits=(0,0))
             plt.savefig(f"{file.stem}/png/{file.stem}_{column_name}.png", bbox_inches='tight')
             plt.savefig(f"{file.stem}/pdf/{file.stem}_{column_name}.pdf", bbox_inches='tight')
         plt.close()
