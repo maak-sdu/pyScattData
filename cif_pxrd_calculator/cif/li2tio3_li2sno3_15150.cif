@@ -1,0 +1,72 @@
+
+#(C) 2020 by FIZ Karlsruhe - Leibniz Institute for Information Infrastructure.  All rights reserved.
+data_15150-ICSD
+_database_code_ICSD 15150
+_audit_creation_date 1980-01-01
+_audit_update_record 2000-12-16
+_chemical_name_common 'Dilithium titanium oxide'
+_chemical_formula_structural 'Li2 Ti O3'
+_chemical_formula_sum 'Li2 O3 Ti1'
+_chemical_name_structure_type Li2SnO3
+_exptl_crystal_density_diffrn 3.43
+_citation_title 'Refinement of the structure of Li2 Ti O3'
+loop_
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Materials Research Bulletin' 1969 4 179 184 MRBUAC
+loop_
+_citation_author_citation_id
+_citation_author_name
+primary 'Dorrian, J.F.'
+primary 'Newnham, R.E.'
+_cell_length_a 5.041(2)
+_cell_length_b 8.806(2)
+_cell_length_c 9.727(2)
+_cell_angle_alpha 90.
+_cell_angle_beta 100.008(50)
+_cell_angle_gamma 90.
+_cell_volume 425.22
+_cell_formula_units_Z 8
+_space_group_name_H-M_alt 'C 1 2/c 1'
+_space_group_IT_number 15
+loop_
+_space_group_symop_id
+_space_group_symop_operation_xyz
+1 'x, -y, z+1/2'
+2 '-x, -y, -z'
+3 '-x, y, -z+1/2'
+4 'x, y, z'
+5 'x+1/2, -y+1/2, z+1/2'
+6 '-x+1/2, -y+1/2, -z'
+7 '-x+1/2, y+1/2, -z+1/2'
+8 'x+1/2, y+1/2, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Li1+ 1
+Ti4+ 4
+O2- -2
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+Li1 Li1+ 8 f 0.238(4) 0.077(3) 0.000(2) 1.2 1.
+Li2 Li1+ 4 d 0.25 0.25 0.5 1.8 1.
+Li3 Li1+ 4 e 0 0.045 0.25 1.5 1.
+Ti1 Ti4+ 4 e 0 0.415(1) 0.25 0.36 1.
+Ti2 Ti4+ 4 e 0 0.747(1) 0.25 0.26 1.
+O1 O2- 8 f 0.141(2) 0.265(2) 0.138(1) 0.6 1.
+O2 O2- 8 f 0.102(2) 0.586(2) 0.138(1) 0.7 1.
+O3 O2- 8 f 0.138(2) 0.906(2) 0.135(1) 0.6 1.
+#End of TTdata_15150-ICSD
