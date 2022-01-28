@@ -40,10 +40,10 @@ cif_cgr_calculator_diffpy/example/cgr/
 cif_cgr_calculator_diffpy/example/pdf/
 cif_cgr_calculator_diffpy/example/png/
 
-# cif_pxrd_calculator_plotter
-cif_pxrd_calculator_plotter/cif
-cif_pxrd_calculator_plotter/png
-cif_pxrd_calculator_plotter/txt
+# cif_pxrd_calculator
+cif_pxrd_calculator/example/pdf
+cif_pxrd_calculator/example/png
+cif_pxrd_calculator/example/txt
 
 #  h5_extracter_writer_plotter
 h5_extracter_writer_plotter/example/
