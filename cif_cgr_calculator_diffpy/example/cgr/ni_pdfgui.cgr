@@ -1,10 +1,10 @@
-# cgr file calculated from ni_pdfgui.cif with the following parameters:               
+# cgr file calculated from ni_pdfgui.cif with the following parameters:                   
 # qmin = 0.1
 # qmax = 24.0
-# qdamp = 0.0325               
+# qdamp = 0.0325                   
 # qbroad = 0.0
 # rmin = 1.0
-# rmax = 10.0               
+# rmax = 10.0                   
 # rstep = 0.01
 # uiso = 0.005
 # L r($\AA$)  G($\AA^-2$)
