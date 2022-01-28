@@ -35,11 +35,10 @@ cif_cgr_calculator_normalized_unix/cif/
 cif_cgr_calculator_normalized_unix/pdf/
 cif_cgr_calculator_normalized_unix/png/
 
-# cif_cgr_calculator_plotter_unix
-cif_cgr_calculator_plotter_unix/cgr/
-cif_cgr_calculator_plotter_unix/cif/
-cif_cgr_calculator_plotter_unix/pdf/
-cif_cgr_calculator_plotter_unix/png/
+# cif_cgr_calculator_diffpy
+cif_cgr_calculator_diffpy/examples/cgr/
+cif_cgr_calculator_diffpy/examples/pdf/
+cif_cgr_calculator_diffpy/examples/png/
 
 # cif_pxrd_calculator_plotter
 cif_pxrd_calculator_plotter/cif
