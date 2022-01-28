@@ -36,9 +36,9 @@ cif_cgr_calculator_normalized_unix/pdf/
 cif_cgr_calculator_normalized_unix/png/
 
 # cif_cgr_calculator_diffpy
-cif_cgr_calculator_diffpy/examples/cgr/
-cif_cgr_calculator_diffpy/examples/pdf/
-cif_cgr_calculator_diffpy/examples/png/
+cif_cgr_calculator_diffpy/example/cgr/
+cif_cgr_calculator_diffpy/example/pdf/
+cif_cgr_calculator_diffpy/example/png/
 
 # cif_pxrd_calculator_plotter
 cif_pxrd_calculator_plotter/cif
