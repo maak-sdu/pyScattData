@@ -156,7 +156,7 @@ def two_d_array_plot(two_d_array, column_name, file, pixelsize, cmap_desire, cba
         elif column_name.lower() == 'wp_2':
             cbar.set_label(label=r"$wp_{2}$", size=FONTSIZE_LABELS)
         else:
-            plt.colorbar(label=column_name)
+            cbar.set_label(label=column_name, size=FONTSIZE_LABELS)
         if not isinstance(cbar_limits, type(None)):
             cbar_min, cbar_max = float(cbar_limits.split(",")[0]), float(cbar_limits.split(",")[1])
             plt.clim(cbar_min, cbar_max)
