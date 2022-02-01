@@ -55,7 +55,6 @@ nmf_plotter/pdf
 nmf_plotter/png
 
 # pearson_echem_plotter
-pearson_echem_plotter/data
-pearson_echem_plotter/png
-pearson_echem_plotter/pdf
-pearson_echem_plotter/txt
+pearson_echem_plotter/example/png
+pearson_echem_plotter/example/pdf
+pearson_echem_plotter/example/txt
