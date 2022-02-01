@@ -19,6 +19,14 @@ CMAP = 'YlOrRd'
 
 XLABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
 
+SHRINK_V_LABEL = 0.76
+HEIGHTRATIO_V_LABEL = 0.25
+SHRINK_LI_LABEL = 0.68
+HEIGHTRATIO_LI_LABEL = 0.4
+SHRINK_NA_LABEL = 0.635
+HEIGHTRATIO_NA_LABEL = 0.5
+
+
 TICKINDEX_MAJOR_ECHEM_X = 5
 TICKINDEX_MINOR_ECHEM_X = 1
 TICKINDEX_MAJOR_ECHEM_Y = 0.5
@@ -39,16 +47,19 @@ CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          35:'afmhot', 36:'gist_heat', 37:'copper', 38:'PiYG', 39:'PRGn',
          40:'BrBG', 41:'PuOr', 42:'RdGy', 43:'RdBu', 44:'RdYlBu',
          45:'RdYlGn', 46:'Spectral', 47:'coolwarm', 48:'bwr', 49:'seismic',
-         50:'twilight', 51:'twilight_shifted', 52:'hsv', 53:'ocean', 54:'gist_earth',
-         55:'terrain', 56:'gist_stern', 57:'gnuplot', 58:'gnuplot2', 59:'CMRmap',
-         60:'cubehelix', 61:'brg', 62:'gist_rainbow', 63:'rainbow', 64:'jet',
-         65:'turbo', 66:'nipy_spectral', 67:'gist_ncar'}
+         50:'twilight', 51:'twilight_shifted', 52:'hsv', 53:'ocean',
+         54:'gist_earth', 55:'terrain', 56:'gist_stern', 57:'gnuplot',
+         58:'gnuplot2', 59:'CMRmap', 60:'cubehelix', 61:'brg',
+         62:'gist_rainbow', 63:'rainbow', 64:'jet', 65:'turbo',
+         66:'nipy_spectral', 67:'gist_ncar'}
 
 
 def pearson_correlation(data_ext):
-    xmin = float(input("\tPlease provide the minimum x-value to include for each data file: "))
-    xmax = float(input("\tPlease provide the maximum x-value to include for each data file: "))
-    print(f"{90*'-'}\nConducting the Pearson correlation analysis...")
+    xmin = float(input("\tPlease provide the minimum x-value to include for "
+                       "each data file: "))
+    xmax = float(input("\tPlease provide the maximum x-value to include for "
+                       "each data file: "))
+    print(f"{80*'-'}\nConducting the Pearson correlation analysis...")
     datafiles = (Path.cwd() / 'data').glob(f'*{data_ext}')
     data_dict = {}
     for f in datafiles:
@@ -77,7 +88,8 @@ def pearson_correlation(data_ext):
             for j in range(1, scanlist[i] - scanlist[i-1]):
                 missing_scans.append(i+j)
     if len(missing_scans) > 0:
-        print(f"\nMissing scan(s) {missing_scans}. Consider including 'blank' scan(s) with this(these) scan number(s).\n")
+        print(f"\nMissing scan(s) {missing_scans}. Consider including 'blank' "
+               "scan(s) with this(these) scan number(s).\n")
     startscan, endscan = scanlist[0], scanlist[-1]
     x_list = [data_dict[k]['x'] for k in data_dict]
     y_list = [data_dict[k]['y'] for k in data_dict]
@@ -113,8 +125,10 @@ def pearson_correlation(data_ext):
     ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     cbar = ax.figure.colorbar(im, ax=ax, format='%.2f')
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_rel_x={xmin}-{xmax}.png', bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_rel_x={xmin}-{xmax}.pdf', bbox_inches='tight')
+    plt.savefig(f'png/{filename}correlation_matrix_rel_x={xmin}-{xmax}.png',
+                bbox_inches='tight')
+    plt.savefig(f'pdf/{filename}correlation_matrix_rel_x={xmin}-{xmax}.pdf',
+                bbox_inches='tight')
     plt.close()
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     im = ax.imshow(corr_matrix,
@@ -134,25 +148,28 @@ def pearson_correlation(data_ext):
     ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     cbar = ax.figure.colorbar(im, ax=ax, format='%.2f')
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_abs_x={xmin}-{xmax}.png', bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_abs_x={xmin}-{xmax}.pdf', bbox_inches='tight')
+    plt.savefig(f'png/{filename}correlation_matrix_abs_x={xmin}-{xmax}.png',
+                bbox_inches='tight')
+    plt.savefig(f'pdf/{filename}correlation_matrix_abs_x={xmin}-{xmax}.pdf',
+                bbox_inches='tight')
     plt.close()
-    print(f"\nPearson correlation analysis completed.\n{90*'-'}\
-           \nFigures of the Pearson correlation matrix have been saved to the pdf and png folders.\
-           \nA textfile with the correlation matrix has been saved to the txt folder.\n{90*'-'}")
+    print(f"\nPearson correlation analysis completed.\n{80*'-'}\nFigures of "
+          f"the Pearson correlation matrix have been saved to the pdf and png "
+          f"folders.\nA textfile with the correlation matrix has been saved to "
+          f"the txt folder.\n{80*'-'}")
 
     return corr_matrix, scanlist, filename, xmin, xmax
 
 
 def dummy_scan(data_ext):
     if not (Path.cwd() / 'data').exists():
-        print(f"{90*'-'}\nPlease create a folder named 'data' and place your data files there.\
-              \n{90*'-'}")
+        print(f"{80*'-'}\nPlease create a folder named 'data' and place your "
+              f"data files there.\n{80*'-'}")
         sys.exit()
     files = list((Path.cwd() / 'data').glob('*.*'))
     if len(files) == 0:
-        print(f"{90*'-'}\nPlease place your data files in the 'data' folder.\
-              \n{90*'-'}")
+        print(f"{80*'-'}\nPlease place your data files in the 'data' folder.\
+              \n{80*'-'}")
         sys.exit()
     files = list((Path.cwd() / 'data').glob(f'*{data_ext}'))
     filename = ''
@@ -174,12 +191,15 @@ def dummy_scan(data_ext):
         xy_dummy = np.column_stack((x, y_dummy))
         for e in missing_scans:
             if file_ext == '.gr':
-                np.savetxt(f"data/{filename}{e}{file_ext}", xy_dummy, fmt='%.2f')
+                np.savetxt(f"data/{filename}{e}{file_ext}", xy_dummy,
+                           fmt='%.2f')
             else:
-                np.savetxt(f"data/{filename}{e}{file_ext}", xy_dummy, fmt='%.6f')
-        print(f"{90*'-'}\n\tThe following dummy scans have been saved to the 'data' directory:")
+                np.savetxt(f"data/{filename}{e}{file_ext}", xy_dummy,
+                           fmt='%.6f')
+        print(f"\t\tThe following dummy scans have been saved to the "
+               "'data' directory:")
         for e in missing_scans:
-            print(f"{filename}{e}{file_ext}")
+            print(f"\t\t\t{filename}{e}{file_ext}")
 
         return None
 
@@ -188,15 +208,15 @@ def echem_collector(echemfile):
     print("Collecting electrochemical data...")
     data = np.loadtxt(echemfile)
     time, voltage = data[:,0], data[:,1]
-    print(f"Electrochemical data collected.\n{90*'-'}")
+    print(f"Electrochemical data collected.\n{80*'-'}")
 
     return time, voltage
 
 
-def echem_plotter(time, voltage, filename, voltage_min, voltage_max, ylabel_echem):
+def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
+                  ylabel_echem):
     print(f"{80*'-'}\nPlotting electrochemistry...")
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
-    # plt.style.use(bg_mpl_style)
     plt.plot(time, voltage, c=COLORS[1])
     plt.xlim(np.amin(time), np.amax(time))
     plt.ylim(voltage_min, voltage_max)
@@ -210,7 +230,8 @@ def echem_plotter(time, voltage, filename, voltage_min, voltage_max, ylabel_eche
     plt.savefig(f"png/{filename}echem.png", bbox_inches="tight")
     plt.savefig(f"pdf/{filename}echem.pdf", bbox_inches="tight")
     plt.close()
-    print(f"Plot with electrochemistry saved to the pdf and png folders.\n{90*'-'}")
+    print(f"Plot with electrochemistry saved to the 'pdf' and 'png' folders.\
+            \n{80*'-'}")
 
     return None
 
@@ -254,8 +275,10 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
     plt.subplots_adjust(hspace=0.1)
     cbar = plt.colorbar(im, ax=axs, anchor=(0,1), shrink=shrink)
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.png', bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.pdf', bbox_inches='tight')
+    plt.savefig(f'png/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.png',
+                bbox_inches='tight')
+    plt.savefig(f'pdf/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.pdf',
+                bbox_inches='tight')
     plt.close()
     fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
                             gridspec_kw={'height_ratios': heightratio,
@@ -277,7 +300,6 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
     axs[0].xaxis.set_label_position('top')
     axs[0].tick_params(axis='x', rotation=90)
     axs[0].tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    # cbar = axs[0].figure.colorbar(im, ax=axs, format='%.2f')
     axs[1].plot(time, voltage, c=COLORS[1])
     axs[1].set_xlim(np.amin(time), np.amax(time))
     axs[1].set_ylim(voltage_min, voltage_max)
@@ -291,11 +313,13 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
     plt.subplots_adjust(hspace=0.1)
     cbar = plt.colorbar(im, ax=axs, anchor=(0,1), shrink=shrink)
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.png', bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.pdf', bbox_inches='tight')
+    plt.savefig(f'png/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.png',
+                bbox_inches='tight')
+    plt.savefig(f'pdf/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.pdf',
+                bbox_inches='tight')
     plt.close()
-    print(f"Plots with correlation matrix and electrochemistry together have been saved to the pdf and\
-            \npng folders.\n{90*'-'}")
+    print(f"Plots with correlation matrix and electrochemistry together have "
+          f"been saved to\nthe 'pdf'and 'png' folders.\n{80*'-'}")
 
     return None
 
@@ -308,43 +332,50 @@ def main():
     for path in PATHS:
         if not path.exists():
             path.mkdir()
-    print(f"{90*'-'}\
-            \nPlease see the top of the 'pearson_echem_plotter.py' file to ensure that the right plot\
-            \nsettings are used.")
+    print(f"{80*'-'}\
+            \nPlease see the top of the 'pearson_echem_plotter.py' file to "
+            "ensure that the\nright plotsettings are used.")
     if not (Path.cwd() / 'data').exists():
-        print(f"{90*'-'}\nPlease make a folder called 'data' and put your datafiles into this.\n{90*'-'}")
+        print(f"{80*'-'}\nPlease make a folder called 'data' and put your "
+              f"datafiles into this.\n{80*'-'}")
         sys.exit()
-    data_ext = input(f"{90*'-'}\nCorrelation analysis inputs...\
-                     \n\tPlease provide the file extension for the datafiles (e.g. '.gr'): ")
+    data_ext = input(f"{80*'-'}\nCorrelation analysis inputs...\
+                     \n\tPlease provide the file extension for the datafiles "
+                     "(e.g. '.gr'): ")
     dummy_scan(data_ext)
     corr_matrix, scanlist, filename, xmin, xmax = pearson_correlation(data_ext)
     echemfile = list((Path.cwd() / "data").glob('*.txt'))[0]
     time, voltage = echem_collector(echemfile)
     print("Electrochemistry inputs...\n\tTime units:\n\t\t0\tseconds\
           \n\t\t1\tminutes\n\t\t2\thours")
-    time_unit = int(input("\tPlease provide the time units of the echem data file: "))
+    time_unit = int(input("\tPlease provide the time units of the echem data "
+                          "file: "))
     if time_unit == 0:
         time = time / 60**2
     elif time_unit == 1:
         time = time / 60
     voltage_min = float(input("\tPlease provide the minimum voltage to plot: "))
     voltage_max = float(input("\tPlease provide the maximum voltage to plot: "))
-    print("\tVoltage label...\n\t\t0\tV [V]\n\t\t1\tEwe vs. Li/Li+ [V]\
+    print("\tVoltage labels...\n\t\t0\tV [V]\n\t\t1\tEwe vs. Li/Li+ [V]\
             \n\t\t2\tEwe vs. Na/Na+ [V]")
-    ylabel_echem = int(input("\tPlease provide the desired label for the voltage: "))
+    ylabel_echem = int(input("\tPlease provide the desired label for the "
+                             "voltage: "))
     if ylabel_echem == 0:
         ylabel_echem = r"$V$ $[\mathrm{V}]$"
-        heightratio = [1, 0.25]
-        shrink = 0.76
+        heightratio = [1, HEIGHTRATIO_V_LABEL]
+        shrink = SHRINK_V_LABEL
     elif ylabel_echem == 1:
-        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$" + "\n" + r"$Li/Li^{+}}$ $[\mathrm{V}]$"
-        heightratio = [1, 0.6]
-        shrink = 0.596
+        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$" + "\n"
+        ylabel_echem += r"$\mathrm{Li/Li^{+}}$ $[\mathrm{V}]$"
+        heightratio = [1, HEIGHTRATIO_LI_LABEL]
+        shrink = SHRINK_LI_LABEL
     elif ylabel_echem == 2:
-        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$" + "\n" + r"$\mathrm{Na/Na^{+}}$ $[\mathrm{V}]$"
-        heightratio = [1, 0.6]
-        shrink = 0.596
-    echem_plotter(time, voltage, filename, voltage_min, voltage_max, ylabel_echem)
+        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$" + "\n"
+        ylabel_echem += r"$\mathrm{Na/Na^{+}}$ $[\mathrm{V}]$"
+        heightratio = [1, HEIGHTRATIO_NA_LABEL]
+        shrink = SHRINK_NA_LABEL
+    echem_plotter(time, voltage, filename, voltage_min, voltage_max,
+                  ylabel_echem)
     pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
                           voltage_min, voltage_max, xmin, xmax,
                           ylabel_echem, heightratio, shrink)
