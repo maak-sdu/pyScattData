@@ -18,9 +18,8 @@ asc_to_csv/example/pdf
 asc_to_csv/example/png
 
 # iq_sq_fq_gr_plot
-iq_sq_fq_gr_plot/data/
-iq_sq_fq_gr_plot/pdf/
-iq_sq_fq_gr_plot/png/
+iq_sq_fq_gr_plot/example/pdf
+iq_sq_fq_gr_plot/example/png
 
 # cgr_Ni_fcc_tethole
 cgr_stackplot/example/cgr/
