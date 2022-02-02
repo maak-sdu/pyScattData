@@ -48,9 +48,8 @@ h5_extract_write_plot/example/png
 h5_extract_write_plot/example/xy
 
 # nmf_plotter
-nmf_plotter/data
-nmf_plotter/pdf
-nmf_plotter/png
+nmf_plotter/example/pdf
+nmf_plotter/example/png
 
 # pearson_echem_plotter
 pearson_echem_plotter/example/png
