@@ -5,14 +5,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
+PIXELSIZE = 50*10**-3
+
 DPI = 300
 XLABEL = r"$\mathrm{Horizontal\,pos.}$ $[\mathrm{mm}]$"
 YLABEL = r"$\mathrm{Vertical\,pos.}$ $[\mathrm{mm}]$"
-PIXELSIZE = 50*10**-3
-SHRINK = 0.935
+
 FONTSIZE_LABELS = 20
 FONTSIZE_TICKS = 14
+
+TICKINDEX_MAJOR_X = 1
+TICKINDEX_MINOR_X = TICKINDEX_MAJOR_X / 5
+TICKINDEX_MAJOR_Y = 1
+TICKINDEX_MINOR_Y = TICKINDEX_MAJOR_Y / 5
+
+SHRINK = 0.935
 CBAR_SCILIMIT = 10**3
+
 CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
          10: 'YlOrBr', 11:'YlOrRd', 12:'OrRd', 13:'PuRd', 14:'RdPu',
@@ -125,6 +134,10 @@ def two_d_array_plot(two_d_array, column_name, file, pixelsize, cmap_desire, cba
         ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
         ax.xaxis.set_label_position('top')
         ax.xaxis.tick_top()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_X))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_X))
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_Y))
+        ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_Y))
         cbar = plt.colorbar(im, ax=ax, anchor=(0,1), shrink=SHRINK)
         cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
         if column_name.lower() == 'scan_number':
