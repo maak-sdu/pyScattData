@@ -42,12 +42,10 @@ cif_pxrd_calculator/example/pdf
 cif_pxrd_calculator/example/png
 cif_pxrd_calculator/example/txt
 
-#  h5_extracter_writer_plotter
-h5_extracter_writer_plotter/example/
-h5_extracter_writer_plotter/h5/
-h5_extracter_writer_plotter/pdf/
-h5_extracter_writer_plotter/png/
-h5_extracter_writer_plotter/xy/
+#  h5_extract_write_plot
+h5_extract_write_plot/example/pdf
+h5_extract_write_plot/example/png
+h5_extract_write_plot/example/xy
 
 # nmf_plotter
 nmf_plotter/data
