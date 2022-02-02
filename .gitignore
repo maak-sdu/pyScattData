@@ -43,9 +43,9 @@ cif_pxrd_calculator/example/png
 cif_pxrd_calculator/example/txt
 
 #  h5_extract_write_plot
-# h5_extract_write_plot/example/pdf
-# h5_extract_write_plot/example/png
-# h5_extract_write_plot/example/xy
+h5_extract_write_plot/example/pdf
+h5_extract_write_plot/example/png
+h5_extract_write_plot/example/xy
 
 # nmf_plotter
 nmf_plotter/data
