@@ -1,0 +1,8 @@
+NMF Analysis PDFitc
+
+User maak-sdu has uploaded 41 files for analysis.
+
+The selected active r ranges are: 1-30
+
+Thesholding:
+	The selected threshold is: 4
