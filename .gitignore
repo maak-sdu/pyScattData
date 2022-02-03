@@ -1,25 +1,9 @@
 # Directories to be ignored.
 
-# gr_plotter
-gr_plotter/example/pdf
-gr_plotter/example/png
-
-# ras-to-csv_converter_plotter
-ras-to-csv_converter_plotter/.ipynb_checkpoints
-ras-to-csv_converter_plotter/csv
-ras-to-csv_converter_plotter/pdf
-ras-to-csv_converter_plotter/png
-ras-to-csv_converter_plotter/ras
-
 # asc_to_csv
-asc_to_csv/.ipynb_checkpoints/
 asc_to_csv/example/csv
 asc_to_csv/example/pdf
 asc_to_csv/example/png
-
-# iq_sq_fq_gr_plot
-iq_sq_fq_gr_plot/example/pdf
-iq_sq_fq_gr_plot/example/png
 
 # cgr_Ni_fcc_tethole
 cgr_stackplot/example/cgr/
@@ -27,35 +11,44 @@ cgr_stackplot/example/pdf/
 cgr_stackplot/example/pdfgui/
 cgr_stackplot/example/png/
 
-# cif_cgr_calculator_normalized_unix
-cif_cgr_calculator_normalized_unix/cif/
-cif_cgr_calculator_normalized_unix/pdf/
-cif_cgr_calculator_normalized_unix/png/
+# cif_cgr_calculate_diffpy
+cif_cgr_calculate_diffpy/example/cgr/
+cif_cgr_calculate_diffpy/example/pdf/
+cif_cgr_calculate_diffpy/example/png/
 
-# cif_cgr_calculator_diffpy
-cif_cgr_calculator_diffpy/example/cgr/
-cif_cgr_calculator_diffpy/example/pdf/
-cif_cgr_calculator_diffpy/example/png/
-
-# cif_pxrd_calculator
-cif_pxrd_calculator/example/pdf
-cif_pxrd_calculator/example/png
-cif_pxrd_calculator/example/txt
+# cif_pxrd_calculate
+cif_pxrd_calculate/example/pdf
+cif_pxrd_calculate/example/png
+cif_pxrd_calculate/example/txt
 
 # diffraction_plot
 diffraction_plot/example/pdf
 diffraction_plot/example/png
+
+# gr_plot
+gr_plot/example/pdf
+gr_plot/example/png
 
 #  h5_extract_write_plot
 h5_extract_write_plot/example/pdf
 h5_extract_write_plot/example/png
 h5_extract_write_plot/example/xy
 
-# nmf_plotter
-nmf_plotter/example/pdf
-nmf_plotter/example/png
+# iq_sq_fq_gr_plot
+iq_sq_fq_gr_plot/example/pdf
+iq_sq_fq_gr_plot/example/png
 
-# pearson_echem_plotter
-pearson_echem_plotter/example/png
-pearson_echem_plotter/example/pdf
-pearson_echem_plotter/example/txt
+# nmf_plot
+nmf_plot/example/pdf
+nmf_plot/example/png
+
+# pearson_echem_plot
+pearson_echem_plot/example/png
+pearson_echem_plot/example/pdf
+pearson_echem_plot/example/txt
+
+# ras_to_csv_convert_plot
+ras_to_csv_convert_plot/csv
+ras_to_csv_convert_plot/pdf
+ras_to_csv_convert_plot/png
+ras_to_csv_convert_plot/ras
