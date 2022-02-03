@@ -1,4 +1,4 @@
-# cif_cgr_calculator_diffpy
+# cif_cgr_calculate_diffpy
 This code can be used to calculate reduced atomic pair distribution functions
 (PDFs) as .cgr files from Crystallographic Information Framework (cif) files.
 

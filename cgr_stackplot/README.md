@@ -1,4 +1,4 @@
-# cgr_Ni_fcc_tethole
+# cgr_stackplot
 The code generates a plots from two .cgr files, i.e. calculated PDFs exported
 from the PDFgui.
 
