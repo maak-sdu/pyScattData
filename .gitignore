@@ -21,6 +21,10 @@ cif_pxrd_calculate/example/pdf
 cif_pxrd_calculate/example/png
 cif_pxrd_calculate/example/txt
 
+# csv_1d_to_2d
+csv_1d_to_2d/example/SeqRR_results_NE/
+csv_1d_to_2d/example/delimiter_fix/
+
 # diffraction_plot
 diffraction_plot/example/pdf
 diffraction_plot/example/png
