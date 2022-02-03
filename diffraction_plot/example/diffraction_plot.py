@@ -17,6 +17,7 @@ COLORS = dict(bg_blue='#0B3C5D', bg_red='#B82601', bg_green='#1c6b0a',
               bg_yellowgrey='#AB987A', bg_brownorange='#C09F80')
 COLOR = COLORS["bg_blue"]
 
+
 def diffraction_plot(data_files, x_type):
     for file in data_files:
         print(f"\t{file.name}")
