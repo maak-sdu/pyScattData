@@ -42,6 +42,10 @@ cif_pxrd_calculator/example/pdf
 cif_pxrd_calculator/example/png
 cif_pxrd_calculator/example/txt
 
+# diffraction_plot
+diffraction_plot/example/pdf
+diffraction_plot/example/png
+
 #  h5_extract_write_plot
 h5_extract_write_plot/example/pdf
 h5_extract_write_plot/example/png
