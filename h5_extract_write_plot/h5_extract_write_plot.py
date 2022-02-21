@@ -3,7 +3,6 @@ from pathlib import Path
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-from skbeam.core.utils import twotheta_to_q
 
 
 twotheta_keys = ["2th", "2theta", "twotheta"]
@@ -87,6 +86,32 @@ def dict_to_plot(d, fname):
     return None
 
 
+def merge_dict_to_xy(d):
+    dkeys = d.keys()
+    for k in twotheta_keys:
+        if k in dkeys:
+            twotheta = d[k]
+    for k in q_keys:
+        if k in dkeys:
+            q = d[k]
+    for k in intensity_keys:
+        if k in dkeys:
+            intensity = d[k]
+    if isinstance(twotheta, np.ndarray) and isinstance(intensity, np.ndarray):
+        number_of_scans = intensity.shape[0]
+        print(f"\t\t\tNumber of scans: {number_of_scans}")
+        scans_to_merge = int(input("\t\t\tHow many scans should stacked "
+                                   "together?: "))
+        while number_of_scans % scans_to_merge != 0:
+            print(f"\t\t\t\tThe number of scans to be stacked should be a "
+                   "multiplum "
+                   "of the number_of_scans.")
+            scans_to_merge = int(input("\t\t\tHow many scans should stacked "
+                                       "together?: "))
+
+    return
+
+
 def main():
     h5_path = Path.cwd() / "h5"
     if not h5_path.exists():
@@ -106,7 +131,7 @@ def main():
             p.mkdir()
     print("Working w. files...")
     for h5_file in h5_files:
-        print(f"\t{h5_file.name}")
+        print(f"\tFile: {h5_file.name}")
         fname = h5_file.stem
         d = h5_extract_to_dict(h5_file)
         print("\t\tWriting to two-column files...")
