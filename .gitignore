@@ -34,6 +34,7 @@ gr_plot/example/pdf
 gr_plot/example/png
 
 #  h5_extract_write_plot
+h5_extract_write_plot/old
 h5_extract_write_plot/example/pdf
 h5_extract_write_plot/example/png
 h5_extract_write_plot/example/xy
