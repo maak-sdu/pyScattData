@@ -250,13 +250,27 @@ def main():
                 d_merged = merge_dict(d)
                 print("\t\tWriting to two-column files...")
                 dict_to_xy_write(d_merged, fname)
-                print("\t\tPlotting...")
-                dict_to_plot(d_merged, fname)
+                plotreq = input("\t\tDo you want plots for all merged scans? "
+                                 "(y/n): ")
+                while plotreq not in ["y", "n"]:
+                    input("\t\tDo you want plots for all merged scans? "
+                                     "(y/n): ")
+                if plotreq == "y":
+                    print("\t\tPlotting...")
+                    dict_to_plot(d_merged, fname)
             else:
                 print("\t\tWriting to two-column files...")
                 dict_to_xy_write(d, fname)
-                print("\t\tPlotting...")
-                dict_to_plot(d, fname)
+                plotreq = input("\t\tDo you want plots for all merged scans? "
+                                 "(y/n): ")
+                while plotreq not in ["y", "n"]:
+                    input("\t\tDo you want plots for all merged scans? "
+                                     "(y/n): ")
+                if plotreq == "y":
+                    print("\t\tPlotting...")
+                    dict_to_plot(d_merged, fname)
+                    print("\t\tPlotting...")
+                    dict_to_plot(d, fname)
         except KeyError:
             print(f"\t\tThis file seems to contain non-integrated data. File "
                    "skipped.")
