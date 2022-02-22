@@ -181,7 +181,7 @@ def merge_dict(d):
     if isinstance(intensity, np.ndarray):
         zfill = len(str(intensity.shape[0]))
         number_of_scans = intensity.shape[0]
-        scans_to_stack = int(input("\t\t\tHow many scans should stacked "
+        scans_to_stack = int(input("\t\t\tHow many scans should be stacked "
                                    "together?: "))
         full_stacks = number_of_scans // scans_to_stack
         remainder_to_stack = number_of_scans % scans_to_stack
