@@ -235,7 +235,7 @@ def main():
     print("Working w. files...")
     for h5_file in h5_files:
         try:
-            print(f"\tFile: {h5_file.name}")
+            print(f"{80*'-'}\n\tFile: {h5_file.name}")
             fname = h5_file.stem
             d = h5_extract_to_dict(h5_file)
             for k in INTENSITY_KEYS:
@@ -246,35 +246,48 @@ def main():
             while mergereq not in ["y", "n"]:
                 mergereq = input("\t\tDo you want to merge any of the scans? "
                                  "(y/n): ")
+            if mergereq == "y":
+                writereq = input("\t\tDo you want to write .xy files for all "
+                                 "merged scans? (y/n): ")
+                while writereq not in ["y", "n"]:
+                    writereq = input("\t\tDo you want to write .xy files for "
+                                     "all merged scans? (y/n): ")
+            else:
+                writereq = input("\t\tDo you want to write .xy files for all "
+                                 "scans? (y/n): ")
+                while writereq not in ["y", "n"]:
+                    writereq = input("\t\tDo you want to write .xy files for "
+                                     "merged scans? (y/n): ")
+            if mergereq == "y":
+                plotreq = input("\t\tDo you want to plot all merged scans? "
+                                "(y/n): ")
+                while plotreq not in ["y", "n"]:
+                    plotreq = input("\t\tDo you want to plot all merged scans? "
+                                     "(y/n): ")
+            else:
+                plotreq = input("\t\tDo you want to plot all scans? (y/n): ")
+                while plotreq not in ["y", "n"]:
+                    plotreq = input("\t\tDo you want to plot all scans? "
+                                     "(y/n): ")
             if mergereq.lower() == "y":
                 d_merged = merge_dict(d)
-                print("\t\tWriting to two-column files...")
-                dict_to_xy_write(d_merged, fname)
-                plotreq = input("\t\tDo you want plots for all merged scans? "
-                                 "(y/n): ")
-                while plotreq not in ["y", "n"]:
-                    input("\t\tDo you want plots for all merged scans? "
-                                     "(y/n): ")
+                if writereq == "y":
+                    print("\t\tWriting to two-column files of merged scans...")
+                    dict_to_xy_write(d_merged, fname)
+                    print("\t\tPlotting merged scans...")
                 if plotreq == "y":
-                    print("\t\tPlotting...")
                     dict_to_plot(d_merged, fname)
             else:
-                print("\t\tWriting to two-column files...")
-                dict_to_xy_write(d, fname)
-                plotreq = input("\t\tDo you want plots for all merged scans? "
-                                 "(y/n): ")
-                while plotreq not in ["y", "n"]:
-                    input("\t\tDo you want plots for all merged scans? "
-                                     "(y/n): ")
+                if writereq == "y":
+                    print("\t\tWriting to two-column files for each scan...")
+                    dict_to_xy_write(d, fname)
                 if plotreq == "y":
-                    print("\t\tPlotting...")
-                    dict_to_plot(d_merged, fname)
-                    print("\t\tPlotting...")
+                    print("\t\tPlotting each scan...")
                     dict_to_plot(d, fname)
         except KeyError:
             print(f"\t\tThis file seems to contain non-integrated data. File "
                    "skipped.")
-    print(f"\nDone working w. files.\n{80*'-'}")
+    print(f"{80*'-'}\nDone working w. files.\n{80*'-'}")
 
     return None
 
