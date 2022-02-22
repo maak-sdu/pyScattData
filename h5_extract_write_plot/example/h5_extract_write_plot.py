@@ -201,7 +201,7 @@ def merge_dict(d):
         if remainder_to_stack != 0:
             stack = intensity[(full_stacks * scans_to_stack),:]
             stack_indices_str = str(full_stacks * scans_to_stack).zfill(zfill)
-            for j in range(1, remainder_to_stack):
+            for j in range(1, remainder_to_stack-1):
                 stack = intensity[(full_stacks * scans_to_stack) + 1 + j,:]
             if remainder_to_stack == 1:
                 stack_indices.append(f"{stack_indices_str}")
