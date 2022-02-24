@@ -50,6 +50,10 @@ iq_sq_fq_gr_plot/example/png
 nmf_plot/example/pdf
 nmf_plot/example/png
 
+# pdfgui_fit_plot
+pdfgui_fit_plot/example/png
+pdfgui_fit_plot/example/pdf
+
 # pearson_echem_plot
 pearson_echem_plot/example/png
 pearson_echem_plot/example/pdf
