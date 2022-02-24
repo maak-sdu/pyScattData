@@ -29,6 +29,9 @@ csv_1d_to_2d/example/delimiter_fix/
 diffraction_plot/example/pdf
 diffraction_plot/example/png
 
+# fgr_res_to_gr
+fgr_res_to_gr/example/gr
+
 # gr_plot
 gr_plot/example/pdf
 gr_plot/example/png
