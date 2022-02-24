@@ -50,13 +50,20 @@ def dict_to_xy_write(d, fname):
     if STACK_INDICES_KEY in dkeys:
         stack_indices = d[STACK_INDICES_KEY]
     if isinstance(twotheta, np.ndarray) and isinstance(intensity, np.ndarray):
-        zfill = len(str(intensity.shape[0]))
-        for i in range(intensity.shape[0]):
+        if intensity.ndim > 1:
+            zfill = len(str(intensity.shape[0]))
+            scans_index = intensity.shape[0]
+        else:
+            scans_index = 1
+        for i in range(scans_index):
             if STACK_INDICES_KEY in dkeys:
                 print(f"\t\t\t{stack_indices[i]}")
             else:
                 print(f"\t\t\t{i}")
-            x, y = twotheta, intensity[i,:]
+            if intensity.ndim > 1:
+                x, y = twotheta, intensity[i,:]
+            else:
+                x, y = twotheta, intensity
             xy = np.column_stack((x,y))
             h = "2theta\tintensity"
             if STACK_INDICES_KEY in dkeys:
@@ -66,13 +73,20 @@ def dict_to_xy_write(d, fname):
                 np.savetxt(f"xy/{fname}_{str(i).zfill(zfill)}.xy", xy,
                            encoding="utf-8", header=h)
     elif isinstance(q, np.ndarray) and isinstance(intensity, np.ndarray):
-        zfill = len(str(intensity.shape[0]))
-        for i in range(intensity.shape[0]):
+        if intensity.ndim > 1:
+            zfill = len(str(intensity.shape[0]))
+            scans_index = intensity.shape[0]
+        else:
+            scans_index = 1
+        for i in range(scans_index):
             if STACK_INDICES_KEY in dkeys:
                 print(f"\t\t\t{stack_indices[i]}")
             else:
                 print(f"\t\t\t{i}")
-            x, y = q, intensity[i,:]
+            if intensity.ndim > 1:
+                x, y = q, intensity[i,:]
+            else:
+                x, y = q, intensity
             xy = np.column_stack((x,y))
             h = "q\tintensity"
             if STACK_INDICES_KEY in dkeys:
@@ -100,13 +114,20 @@ def dict_to_plot(d, fname):
     if STACK_INDICES_KEY in dkeys:
         stack_indices = d[STACK_INDICES_KEY]
     if isinstance(twotheta, np.ndarray) and isinstance(intensity, np.ndarray):
-        zfill = len(str(intensity.shape[0]))
-        for i in range(intensity.shape[0]):
+        if intensity.ndim > 1:
+            zfill = len(str(intensity.shape[0]))
+            scans_index = intensity.shape[0]
+        else:
+            scans_index = 1
+        for i in range(scans_index):
             if STACK_INDICES_KEY in dkeys:
                 print(f"\t\t\t{stack_indices[i]}")
             else:
                 print(f"\t\t\t{i}")
-            x, y = twotheta, intensity[i,:]
+            if intensity.ndim > 1:
+                x, y = twotheta, intensity[i,:]
+            else:
+                x, y = twotheta, intensity
             plt.figure(dpi=DPI, figsize=FIGSIZE)
             plt.plot(x, y, c=COLOR, lw=LINEWIDTH)
             plt.xlim(np.amin(x), np.amax(x))
@@ -127,13 +148,20 @@ def dict_to_plot(d, fname):
                             bbox_inches="tight")
             plt.close()
     if isinstance(q, np.ndarray) and isinstance(intensity, np.ndarray):
-        zfill = len(str(intensity.shape[0]))
-        for i in range(intensity.shape[0]):
+        if intensity.ndim > 1:
+            zfill = len(str(intensity.shape[0]))
+            scans_index = intensity.shape[0]
+        else:
+            scans_index = 1
+        for i in range(scans_index):
             if STACK_INDICES_KEY in dkeys:
                 print(f"\t\t\t{stack_indices[i]}")
             else:
                 print(f"\t\t\t{i}")
-            x, y = q, intensity[i,:]
+            if intensity.ndim > 1:
+                x, y = q, intensity[i,:]
+            else:
+                x, y = q, intensity
             plt.figure(dpi=DPI, figsize=FIGSIZE)
             plt.plot(x, y, c=COLOR, lw=LINEWIDTH)
             plt.xlim(np.amin(x), np.amax(x))
