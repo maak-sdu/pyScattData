@@ -42,6 +42,11 @@ h5_extract_write_plot/example/pdf
 h5_extract_write_plot/example/png
 h5_extract_write_plot/example/xy
 
+# h5_merge_all_write_plot
+h5_merge_all_write_plot/example/pdf
+h5_merge_all_write_plot/example/png
+h5_merge_all_write_plot/example/xy
+
 # iq_sq_fq_gr_plot
 iq_sq_fq_gr_plot/example/pdf
 iq_sq_fq_gr_plot/example/png
