@@ -194,6 +194,7 @@ def dict_to_overview_plot(d, fname):
 
 
 def main():
+    print(f"{80*'-'}\nFor plot settings, please see the top of this .py file.")
     h5_path = Path.cwd() / "h5"
     if not h5_path.exists():
         h5_path.mkdir()
@@ -239,7 +240,7 @@ def main():
             fname = h5_file.stem
             dict_to_plot(d_merged, fname)
         print("Done plotting merged scans individually.")
-    print(f"{80*'-'}\nPlotting all merged scans in overwiew plot...")
+    print(f"{80*'-'}\nPlotting all merged scans in an overwiew plot...")
     dict_to_overview_plot(d_merged, fname)
     print(f"Done with overview plot.\n{80*'-'}\nPlease see the 'xy' folder for "
           f".xy files containing merged scans. Please see the\n'pdf' and 'png' "
