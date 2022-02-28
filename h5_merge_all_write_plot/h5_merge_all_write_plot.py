@@ -163,9 +163,9 @@ def dict_to_overview_plot(d, fname):
     elif isinstance(q, np.ndarray):
         x = q
         xlabel = r"$Q$ $[\mathrm{\AA}^{-1}]$"
-    y = intensities
+    y = np.flip(intensities, axis=0)
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
-    im = plt.imshow(intensities,
+    im = plt.imshow(y,
                     interpolation='nearest',
                     origin='lower',
                     vmin=np.amin(y),vmax=np.amax(y),
