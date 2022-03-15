@@ -70,5 +70,14 @@ ras_to_csv_convert_plot/pdf
 ras_to_csv_convert_plot/png
 ras_to_csv_convert_plot/ras
 
+# scattdata_add_esds_normalize
+scattdata_add_esds_normalize/example/bkg_normalized
+scattdata_add_esds_normalize/example/sigmas
+scattdata_add_esds_normalize/example/buf
+scattdata_add_esds_normalize/example/data_normalized
+scattdata_add_esds_normalize/example/data_sigmas
+scattdata_add_esds_normalize/example/pdf
+scattdata_add_esds_normalize/example/png
+
 # waterfall_echem
 waterfall_echem
