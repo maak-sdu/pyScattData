@@ -104,8 +104,7 @@ N1_PDF_Kapton_0-01186-01189.tif
 N1_PDF_Kapton_0-01218-01221.tif  
 
 After merging, consider to rename such that the file is not misleading regarding
-the sequential numbers that were actually merged:
-
+the sequential numbers that were actually merged:  
 N1_PDF_Kapton_0_01186-01189_01218-01221.tif
 
 Alternatively:  
