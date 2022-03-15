@@ -6,7 +6,6 @@ scattering experiment for pair distribution function analysis a 'scan' may
 consist of multiple subframes (.tif files), 60 s each, which will have to be
 merged/summed/stacked. This code is capable of doing the job.
 
-
 ## Expected syntax of input file names and user inputs
 Expected syntax:  
 basename_cyclenumber-sequentialnumber.tif
@@ -30,6 +29,26 @@ files. In the provided output directory, a folder called 'tif_sum' will be
 created. In the 'tif_sum' folder, subdirectories for all basenames
 (i.e. samples) will be created. The merged .tif files will be saved to these
 folders.
+
+The user is asked to provide the expected number of subframes to be merged for
+each scan. This number is only used to log cases, where a different number of
+subframes are encountered for a scan. The subframes will still be merged but the
+file name may be misleading. For example, the files  
+name_cycle-00000.tif  
+name_cycle-00001.tif  
+name_cycle-00003.tif
+will be merged into the file name_cycle_00000-00003.tif. Hence, it is not
+evident from the name of the merged file that subframe 00002 is missing. This
+should be captured in the .log file that goes into the 'tif_sum' directory
+together with all the folders for each basename (i.e. sample).
+
+In addition, the .log file should also report if a cycle number is missing. The
+.log file is named with a time stamp and will therefore not be overwritten if
+the code executed with the same output path provided by the user.
+
+Lastly, the user is asked whether plots of all merged .tifs is desired. If 'y'
+is prompted, a 'png' folder will be created in each of the created subfolders
+named after the basenames (sample names). The plots will be saved as .png files.
 
 ## _Ex-situ_ PDF data for multiple cycles
 
