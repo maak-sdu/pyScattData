@@ -36,7 +36,7 @@ subframes are encountered for a scan. The subframes will still be merged but the
 file name may be misleading. For example, the files  
 name_cycle-00000.tif  
 name_cycle-00001.tif  
-name_cycle-00003.tif
+name_cycle-00003.tif  
 will be merged into the file name_cycle_00000-00003.tif. Hence, it is not
 evident from the name of the merged file that subframe 00002 is missing. This
 should be captured in the .log file that goes into the 'tif_sum' directory
