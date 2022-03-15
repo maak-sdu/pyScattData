@@ -6,6 +6,8 @@ scattering experiment for pair distribution function analysis a 'scan' may
 consist of multiple subframes (.tif files), 60 s each, which will have to be
 merged/summed/stacked. This code is capable of doing the job.
 
+
+## Expected syntax of input file names and user inputs
 Expected syntax:  
 basename_cyclenumber-sequentialnumber.tif
 
