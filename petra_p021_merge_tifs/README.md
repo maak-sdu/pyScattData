@@ -39,48 +39,34 @@ merged .tif file will then have the first and last sequential number in the
 name.
 
 Before renaming:
-  N1_PDF_Kapton_0-01186.tif
-
-  N1_PDF_Kapton_0-01187.tif
-
-  N1_PDF_Kapton_0-01188.tif
-
-  N1_PDF_Kapton_0-01189.tif
-
-  N1_PDF_Kapton_1-01218.tif
-
-  N1_PDF_Kapton_1-01219.tif
-
-  N1_PDF_Kapton_1-01220.tif
-
-  N1_PDF_Kapton_1-01221.tif
+N1_PDF_Kapton_0-01186.tif  
+N1_PDF_Kapton_0-01187.tif  
+N1_PDF_Kapton_0-01188.tif  
+N1_PDF_Kapton_0-01189.tif  
+N1_PDF_Kapton_1-01218.tif  
+N1_PDF_Kapton_1-01219.tif  
+N1_PDF_Kapton_1-01220.tif  
+N1_PDF_Kapton_1-01221.tif  
 
 After renaming:
 
-  N1_PDF_Kapton_0-01186.tif
-
-  N1_PDF_Kapton_0-01187.tif
-
-  N1_PDF_Kapton_0-01188.tif
-
-  N1_PDF_Kapton_0-01189.tif
-
-  N1_PDF_Kapton_0-01218.tif
-
-  N1_PDF_Kapton_0-01219.tif
-
-  N1_PDF_Kapton_0-01220.tif
-
-  N1_PDF_Kapton_0-01221.tif
+N1_PDF_Kapton_0-01186.tif  
+N1_PDF_Kapton_0-01187.tif  
+N1_PDF_Kapton_0-01188.tif  
+N1_PDF_Kapton_0-01189.tif  
+N1_PDF_Kapton_0-01218.tif  
+N1_PDF_Kapton_0-01219.tif  
+N1_PDF_Kapton_0-01220.tif  
+N1_PDF_Kapton_0-01221.tif  
 
 After merging, consider to rename such that the file is not misleading regarding
 the sequential numbers that were actually merged:
 
-  N1_PDF_Kapton_0_01186-01189_01218-01221.tif
+N1_PDF_Kapton_0_01186-01189_01218-01221.tif
 
 Alternatively:
 
-  N1_PDF_Kapton_0.tif
+N1_PDF_Kapton_0.tif
 
 **Workaround 2**
 Initial execution of the code will merge all scans of a given subframe. Make a
@@ -91,21 +77,19 @@ the underscore between the cycle and sequential numbers with a dash
 
 Before renaming:
 
-  N1_PDF_Kapton_0_01186-01189.tif
-
-  N1_PDF_Kapton_1_01218-01221.tif
+N1_PDF_Kapton_0_01186-01189.tif  
+N1_PDF_Kapton_1_01218-01221.tif  
 
 After renaming:
 
-  N1_PDF_Kapton_0-01186-01189.tif
-
-  N1_PDF_Kapton_0-01218-01221.tif
+N1_PDF_Kapton_0-01186-01189.tif  
+N1_PDF_Kapton_0-01218-01221.tif  
 
 After merging, consider to rename such that the file is not misleading regarding
 the sequential numbers that were actually merged:
 
-  N1_PDF_Kapton_0_01186-01189_01218-01221.tif
+N1_PDF_Kapton_0_01186-01189_01218-01221.tif
 
 Alternatively:
 
-  N1_PDF_Kapton_0.tif
+N1_PDF_Kapton_0.tif
