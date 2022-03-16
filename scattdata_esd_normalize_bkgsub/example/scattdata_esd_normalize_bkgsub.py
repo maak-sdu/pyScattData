@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 import numpy as np
 from diffpy.utils.parsers.loaddata import loadData
+from skbeam.core.utils import q_to_twotheta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
@@ -69,10 +70,17 @@ def data_files_to_dict(data_files, type):
     return d
 
 
-def esd_calculator_writer(data_dict, basename, file_ext, zfill, sdd, type):
+def esd_calculator_writer(data_dict, basename, file_ext, zfill, wl, sdd,
+                          xtype, xunit, type):
     for k in data_dict.keys():
         x, y, = data_dict[k][:,0], data_dict[k][:,1]
-        normalizer = np.array([2*np.pi*sdd*np.tan(np.pi*x[i]/180)/0.150
+        if xtype == r'$Q$' and xunit == r'$[\mathrm{\AA}^{-1}]$':
+            x_rad = q_to_twotheta(x, wl)
+        elif xtype == r'$Q$' and xunit == r'$[\mathrm{nm}^{-1}]$':
+            x_rad = q_to_twotheta(x / 10, wl)
+        elif xtype == r'$2\theta$' and xunit == r'$[\degree]$':
+            x_rad = np.radians(x)
+        normalizer = np.array([2*np.pi*sdd*np.tan(x[i])/0.150
                               for i in range(len(x))])
         esd = np.sqrt(y / normalizer)
         xye = np.column_stack((x, y, esd))
@@ -369,21 +377,32 @@ def main():
     bkg_dict = data_files_to_dict(bkg_files, type="bkg")
     data_bkg_dict = data_files_to_dict(data_files, type="data")
     data_bkg_dict["bkg"] = bkg_dict["bkg"]
-    sdd = float(input(f"{80*'-'}\nPlease state the sample-to-detector-distance "
-                      f"in mm: "))
+    wl_sdd_path = Path.cwd() / "wl_sdd.txt"
+    if not wl_sdd_path.exists():
+        wl = float(input(f"{80*'-'}\nPlease state the wavelength in "
+                         f"Ångström: "))
+        sdd = float(input(f"{80*'-'}\nPlease state the sample-to-detector-"
+                          f"distance in mm: "))
+        with wl_sdd_path.open(mode="w", encoding="utf-8") as o:
+            o.write(f"wavelength: {wl}\nsample-to-detector-distance: {sdd}\n")
+    else:
+        with wl_sdd_path.open(mode="r") as f:
+            lines = f.readlines()
+            for line in lines:
+                if "wavelength" in line:
+                    wl = float(line.split()[1])
+                elif "sample" in line:
+                    sdd = float(line.split()[1])
     print(f"{80*'-'}\nPlease state the quantity and unit for the independent "
           f"variable:\n\t1\tfor Q in inverse Ångström.\n\t2\tfor Q in inverse "
           f"nm.\n\t3\tfor 2theta in degrees.")
     xtype = int(input("Please state the quantity on the x-axis: "))
     if xtype == 1:
-        xtype = r'$Q$'
-        xunit = r'$[\mathrm{\AA}^{-1}]$'
+        xtype, xunit = r'$Q$', r'$[\mathrm{\AA}^{-1}]$'
     elif xtype == 2:
-        xtype = r'$Q$'
-        xunit = r'$[\mathrm{nm}^{-1}]$'
+        xtype, xunit = r'$Q$', r'$[\mathrm{nm}^{-1}]$'
     elif xtype == 3:
-        xtype = r'$2\theta$'
-        xunit = r'$[\degree]$'
+        xtype, xunit = r'$2\theta$', r'$[\degree]$'
     print(f"{80*'-'}\nAdding esds and writing files...")
     esd_paths = [Path(f"{data_path}_esd"), Path(f"{bkg_path}_esd")]
     for e in esd_paths:
@@ -393,10 +412,10 @@ def main():
             data_esd_path = e
         elif "bkg" in e.name:
             bkg_esd_path = e
-    esd_calculator_writer(data_dict, basename, data_files_ext, zfill, sdd,
-                            type="data")
-    esd_calculator_writer(bkg_dict, bkgname, data_files_ext, zfill, sdd,
-                            type="bkg")
+    esd_calculator_writer(data_dict, basename, data_files_ext, zfill, wl, sdd,
+                          xtype, xunit, type="data")
+    esd_calculator_writer(bkg_dict, bkgname, data_files_ext, zfill, wl, sdd,
+                          xtype, xunit, type="bkg")
     print(f"Done adding esds and writing to files.")
     data_esd_files = list(data_esd_path.glob("*.*"))
     bkg_esd_files = list(bkg_esd_path.glob("*.*"))
