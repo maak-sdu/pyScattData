@@ -79,6 +79,7 @@ scattdata_esd_normalize_bkgsub/example/data_esd_normalized
 scattdata_esd_normalize_bkgsub/example/data_esd_normalized_bkgsub
 scattdata_esd_normalize_bkgsub/example/pdf
 scattdata_esd_normalize_bkgsub/example/png
+scattdata_esd_normalize_bkgsub/example/wl_sdd.txt
 
 # waterfall_echem
 waterfall_echem
