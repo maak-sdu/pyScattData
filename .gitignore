@@ -71,14 +71,14 @@ ras_to_csv_convert_plot/png
 ras_to_csv_convert_plot/ras
 
 # scattdata_esd_normalize
-scattdata_esd_normalize/example/bkg_esd
-scattdata_esd_normalize/example/bkg_esd_normalized
-scattdata_esd_normalize/example/buf_esd_normalized
-scattdata_esd_normalize/example/data_esd
-scattdata_esd_normalize/example/data_esd_normalized
-scattdata_esd_normalize/example/data_esd_normalized_bkgsub
-scattdata_esd_normalize/example/pdf
-scattdata_esd_normalize/example/png
+scattdata_esd_normalize_bkgsub/example/bkg_esd
+scattdata_esd_normalize_bkgsub/example/bkg_esd_normalized
+scattdata_esd_normalize_bkgsub/example/buf_esd_normalized
+scattdata_esd_normalize_bkgsub/example/data_esd
+scattdata_esd_normalize_bkgsub/example/data_esd_normalized
+scattdata_esd_normalize_bkgsub/example/data_esd_normalized_bkgsub
+scattdata_esd_normalize_bkgsub/example/pdf
+scattdata_esd_normalize_bkgsub/example/png
 
 # waterfall_echem
 waterfall_echem
