@@ -10,12 +10,14 @@ DPI = 300
 CMAP = "viridis"
 
 
-def dict_basename_cyclenumber_sort(tifs):
+def dict_basename_cyclenumber_sort(tifs, filename_syntax):
     d = {}
     for tif in tifs:
         tifname = tif.stem
-        cycle_number = tifname.split("-")[0].split("_")[-1]
-        basename_split = tifname.split("_")
+        if filename_syntax == "cyclenumber":
+            basename_split = tifname.split("_")
+        elif filename_syntax == "basename":
+            basename_split = tifname.split("-")
         basename = basename_split[0]
         for i in range(1, len(basename_split)-1):
             basename += f"_{basename_split[i]}"
@@ -23,12 +25,33 @@ def dict_basename_cyclenumber_sort(tifs):
             d[basename]
         except KeyError:
             d[basename] = defaultdict(list)
-        d[basename][cycle_number].append(tif)
+        if filename_syntax == "cyclenumber":
+            cycle_number = tifname.split("-")[0].split("_")[-1]
+            d[basename][cycle_number].append(tif)
+        elif filename_syntax == "basename":
+            d[basename]["0"].append(tif)
 
     return d
 
 
-def tif_merge_log(d_tif, subframes_exp, output_path):
+# def dict_basename_sort(tifs):
+#     d = {}
+#     for tif in tifs:
+#         tifname = tif.stem
+#         basename_split = tifname.split("_")
+#         basename = basename_split[0]
+#         for i in range(1, len(basename_split)-1):
+#             basename += f"{basename_split[i]}"
+#         try:
+#             d[basename]
+#         except KeyError:
+#             d[basename] = defaultdict(list)
+#         d[basename].append(tif)
+#
+#     return d
+
+
+def tif_merge_log(d_tif, filename_syntax, subframes_exp, output_path):
     d_merged = {}
     dt = str(datetime.now()).split("-")
     y, m, d_h_min_s = dt[0][2:], dt[1], dt[2].split()
@@ -135,6 +158,15 @@ def main():
                            f"Please review the output path provided\nand "
                            f"resubmit:\nOutput path: ")
     input_path, output_path = Path(input_path), Path(output_path)
+    print(f"{80*'-'}\Filename syntax:\n\t1\tbasename_cyclenumber-"
+          f"sequentialnumber\n\t2\tbasename-sequentialnumber")
+    filename_syntax = input("Please provide the filename syntax: ")
+    while filename_syntax not in ["1", "2"]:
+        filename_syntax = input("Please provide the filename syntax: ")
+    if filename_syntax == "1":
+        filename_syntax = "cyclenumber"
+    elif filename_syntax == "2":
+        filename_syntax = "basename"
     subframes_exp = int(input(f"{80*'-'}\nPlease provide the expected number "
                               f"of subframes to merge: "))
     plotreq = input(f"{80*'-'}\nDo you want to plot all merged tifs? (y/n): ")
@@ -145,9 +177,14 @@ def main():
     tif_w_darks = list(input_path.glob("*.tif"))
     tifs = [tif_w_darks[i] for i in range(len(tif_w_darks))
             if not "dark" in tif_w_darks[i].stem]
-    print(f".tif files collected.\n{80*'-'}\nSorting .tif files in dictionary "
-          f"according to basename and cycle number...")
-    d = dict_basename_cyclenumber_sort(tifs)
+    print(".tif files collected.")
+    if filename_syntax == "1":
+        print(f"\n{80*'-'}\nSorting .tif files in dictionary according to "
+              f"basename and cycle number...")
+    elif filename_syntax == "2":
+        print(f"\n{80*'-'}\nSorting .tif files in dictionary according to "
+              f"basename...")
+    d = dict_basename_cyclenumber_sort(tifs, filename_syntax)
     if not (output_path / "tif_sum").exists():
         (output_path / "tif_sum").mkdir()
     output_path = output_path / "tif_sum"
@@ -156,7 +193,7 @@ def main():
             (output_path / basename).mkdir()
     print(f"Done sorting .tif files.\n{80*'-'}\nMerging tifs and preparing "
           f"dictionary for plotting...")
-    d_merged = tif_merge_log(d, subframes_exp, output_path)
+    d_merged = tif_merge_log(d, filename_syntax, subframes_exp, output_path)
     print(f"{80*'-'}\nDone merging. Please see merged .tif files in the "
           f"'tif_sum' folder created in\nthe provided output directory."
           f"\n{80*'-'}\nPlease review the .log file in the output dorectory to "
