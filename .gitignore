@@ -71,7 +71,6 @@ ras_to_csv_convert_plot/png
 ras_to_csv_convert_plot/ras
 
 # scattdata_esd_normalize
-scattdata_esd_normalize_bkgsub/example/N1_MAAK_FPOH_p4
 scattdata_esd_normalize_bkgsub/example/N1_MAAK_FPOH_p4/bkg_esd
 scattdata_esd_normalize_bkgsub/example/N1_MAAK_FPOH_p4/bkg_esd_normalized
 scattdata_esd_normalize_bkgsub/example/N1_MAAK_FPOH_p4/buf_esd_normalized
@@ -82,7 +81,6 @@ scattdata_esd_normalize_bkgsub/example/N1_MAAK_FPOH_p4/pdf
 scattdata_esd_normalize_bkgsub/example/N1_MAAK_FPOH_p4/png
 scattdata_esd_normalize_bkgsub/example/N1_MAAK_FPOH_p4/wl_sdd.txt
 
-scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/bkg_esd
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/bkg_esd_normalized
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/buf_esd_normalized
