@@ -7,16 +7,14 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
+SCAN_SPLIT_CHAR = "_"
+SCAN_SEQ_SPLIT_CHAR = "-"
+
 DPI = 300
 FIGSIZE = (12,4)
 FONTSIZE_LABELS = 20
 FONTSIZE_TICKS = 14
 LINEWIDTH = 1
-
-TICKINDEX_SCAN_MAJOR = 5
-TICKINDEX_SCAN_MINOR = 1
-TICKINDEX_SCATT_MAJOR = 5
-TICKINDEX_SCATT_MINOR = 1
 
 CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
@@ -52,16 +50,20 @@ def comma_to_dot(files):
             fname = comma_to_dot_path / e.name
             with fname.open(mode="w", encoding="utf-8") as o:
                 o.write(s)
-        print(f"Done converting commas to dots.\n{80*'-'}")
+        print(f"Done converting commas to dots.")
 
     return None
 
 
-def data_files_to_dict(data_files, type):
+def data_files_to_dict(data_files, scan_split_index, scan_split_index2, type):
     d = {}
     if type == "data":
         for f in data_files:
-            scan = int(str(f.stem).split("_")[-1])
+            if isinstance(scan_split_index2, int):
+                scan = f.stem.split(SCAN_SPLIT_CHAR)[scan_split_index]
+                scan = int(scan.split(SCAN_SEQ_SPLIT_CHAR)[scan_split_index2])
+            else:
+                scan = int(f.stem.split(SCAN_SPLIT_CHAR)[scan_split_index])
             d[scan] = loadData(str(f))
     elif type == "bkg":
         for f in data_files:
@@ -72,7 +74,7 @@ def data_files_to_dict(data_files, type):
 
 def esd_calculator_writer(data_dict, basename, file_ext, zfill, wl, sdd,
                           xtype, xunit, type):
-    for k in data_dict.keys():
+    for k in sorted(data_dict.keys()):
         x, y, = data_dict[k][:,0], data_dict[k][:,1]
         if xtype == r'$Q$' and xunit == r'$[\mathrm{\AA}^{-1}]$':
             x_rad = q_to_twotheta(x, wl)
@@ -190,7 +192,7 @@ def buf_writer(files_norm, buf_path):
 
 
 def extrema_collect(data_dict):
-    keys = list(data_dict.keys())
+    keys = sorted(list(data_dict.keys()))
     for i in range(len(keys)):
         xy = data_dict[keys[i]]
         x, y = xy[:,0], xy[:,1]
@@ -198,7 +200,7 @@ def extrema_collect(data_dict):
             y_stack = y
         else:
             y_stack = np.column_stack((y_stack, y))
-    xmin, xmax = None, None
+    xmin, xmax, xmin_index, xmax_index = None, None, 0, -1
     for i in range(len(y)-1):
         if y[i] == 0 and y[i+1] != 0:
             xmin_index = i
@@ -256,7 +258,7 @@ def dict_bkg_sub_writer(data_dict_bkg_sub, basename, file_ext, output_path,
 
 def data_dict_overview(data_dict, xlabel, basename, xmin, xmax, xmin_index,
                        xmax_index):
-    keys = list(data_dict.keys())
+    keys = sorted(list(data_dict.keys()))
     for i in range(len(keys)):
         xy = data_dict[keys[i]]
         x, y = xy[:,0], xy[:,1]
@@ -265,14 +267,14 @@ def data_dict_overview(data_dict, xlabel, basename, xmin, xmax, xmin_index,
         else:
             y_stack = np.column_stack((y_stack, y))
     y = np.flip(y_stack[xmin_index:xmax_index, :], axis=0)
+    xrange = xmax - xmin
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     im = plt.imshow(y,
                     interpolation='nearest',
                     origin='lower',
                     vmin=np.amin(y), vmax=np.amax(y),
                     extent=(0, len(keys), xmax, xmin),
-                    # aspect=(len(scannumbers) - 0)/(np.amax(x) - np.amin(x)),
-                    # aspect=FIGSIZE[0]/FIGSIZE[-1],
+                    aspect="auto",
                     cmap=CMAP
                     )
     ax.xaxis.set_ticks_position('top')
@@ -283,10 +285,24 @@ def data_dict_overview(data_dict, xlabel, basename, xmin, xmax, xmin_index,
     cbar.ax.set_ylabel(r"$I$ " "$[\mathrm{arb. u.}]$", fontsize=FONTSIZE_LABELS)
     cbar.formatter.set_powerlimits((0, 0))
     cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_SCAN_MAJOR))
-    ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_SCAN_MINOR))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_SCATT_MAJOR))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_SCATT_MINOR))
+    major_ticks, minor_ticks = 5, 5
+    base_scan = 10
+    if xrange < 15:
+        base_scatt = 2
+    elif 15 <= xrange < 50:
+        base_scatt = 5
+    else:
+        base_scatt = 10
+    tickindex_scan_major = (base_scan * round(len(keys) / major_ticks /
+                            base_scan))
+    tickindex_scan_minor = tickindex_scan_major / minor_ticks
+    tickindex_scatt_major = (base_scatt * round(xrange / major_ticks /
+                             base_scatt))
+    tickindex_scatt_minor = tickindex_scatt_major / minor_ticks
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(tickindex_scan_major))
+    ax.xaxis.set_minor_locator(ticker.MultipleLocator(tickindex_scan_minor))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(tickindex_scatt_major))
+    ax.yaxis.set_minor_locator(ticker.MultipleLocator(tickindex_scatt_minor))
     plt.savefig(f"png/{basename}_overview.png", bbox_inches="tight")
     plt.savefig(f"pdf/{basename}_overview.pdf", bbox_inches="tight")
     plt.show()
@@ -342,19 +358,28 @@ def main():
     for f in data_files:
         if not f.suffix in data_files_exts:
             data_files_exts.append(f.suffix)
-        name_split = str(f.stem).split('_')
-        basename = name_split[0]
-        for i in range(1, len(name_split)-1):
-            basename += f"_{name_split[i]}"
-        if not basename in basenames:
-            basenames.append(basename)
     if len(data_files_exts) > 1:
         print(f"{80*'-'}\nMore than one file extension was found in the 'data' "
               f"folder: {data_files_exts}\nPlease ensure that only one type of "
               f"files are placed in the 'data' folder and\nrerun the code."
               f"\n{80*'-'}")
         sys.exit()
-    elif len(basenames) > 1:
+    scanseq_split = data_files[0].stem.split(SCAN_SPLIT_CHAR)
+    print(f"{80*'-'}\nSplitting the filename '{data_files[0].name}' at "
+          f"'{SCAN_SPLIT_CHAR}': ")
+    for i in range(len(scanseq_split)):
+        print(f"\t{i}\t{scanseq_split[i]}")
+    scan_split_index = int(input("Please provide the integer for the entry "
+                                    "containing the scan number\n(possibly "
+                                    "more, e.g. the sequential number): "))
+    for f in data_files:
+        fname_split = f.stem.split(SCAN_SPLIT_CHAR)
+        basename = fname_split[0]
+        for i in range(1, scan_split_index):
+            basename += f"_{scanseq_split[i]}"
+        if not basename in basenames:
+            basenames.append(basename)
+    if len(basenames) > 1:
         print(f"{80*'-'}\nMore than one naming scheme was found in the 'data' "
               f"folder: {basenames}\nPlease ensure that only data files are "
               f"placed in the 'data' folder.\nThe bkg file should be placed in "
@@ -362,7 +387,6 @@ def main():
               f"code.\n{80*'-'}")
         sys.exit()
     zfill = len(str(len(data_files)))
-    basename = basenames[0]
     bkgname = bkg_files[0].stem
     data_files_ext = data_files_exts[0]
     comma_to_dot(data_files)
@@ -373,10 +397,27 @@ def main():
     bkg_comma_to_dot_path = Path(f"{bkg_path}_comma_to_dot")
     if bkg_comma_to_dot_path.exists():
         bkg_files = list(bkg_comma_to_dot_path.glob("*.*"))
-    data_dict = data_files_to_dict(data_files, type="data")
-    bkg_dict = data_files_to_dict(bkg_files, type="bkg")
-    data_bkg_dict = data_files_to_dict(data_files, type="data")
+    f_0 = data_files[0]
+    scan_syntax = f_0.stem.split(SCAN_SPLIT_CHAR)[scan_split_index]
+    if SCAN_SEQ_SPLIT_CHAR in scan_syntax:
+        scan_syntax_split = scan_syntax.split(SCAN_SEQ_SPLIT_CHAR)
+        print(f"{80*'-'}\nSplitting '{scan_syntax}' at "
+              f"'{SCAN_SEQ_SPLIT_CHAR}'...")
+        for i in range(len(scan_syntax_split)):
+            print(f"\t{i}\t{scan_syntax_split[i]}")
+        scan_split_index2 = int(input("Please state the integer for the "
+                                       "entry of the scan number: "))
+    else:
+        scan_split_index2 = None
+    print(f"{80*'-'}\nLoading data and bkg into dictionaries...")
+    data_dict = data_files_to_dict(data_files, scan_split_index,
+                                   scan_split_index2, type="data")
+    bkg_dict = data_files_to_dict(bkg_files, scan_split_index,
+                                  scan_split_index2, type="bkg")
+    data_bkg_dict = data_files_to_dict(data_files, scan_split_index,
+                                       scan_split_index2, type="data")
     data_bkg_dict["bkg"] = bkg_dict["bkg"]
+    print("Done loading data and bkg into dictionaries.")
     wl_sdd_path = Path.cwd() / "wl_sdd.txt"
     if not wl_sdd_path.exists():
         wl = float(input(f"{80*'-'}\nPlease state the wavelength in "
@@ -388,11 +429,27 @@ def main():
     else:
         with wl_sdd_path.open(mode="r") as f:
             lines = f.readlines()
-            for line in lines:
-                if "wavelength" in line:
-                    wl = float(line.split()[1])
-                elif "sample" in line:
-                    sdd = float(line.split()[1])
+        for line in lines:
+            if "wavelength" in line:
+                wl = float(line.split()[1])
+            elif "sample" in line:
+                sdd = float(line.split()[1])
+        print(f"{80*'-'}\nThe following wavelength (wl) and sample-to-detector-"
+              f"distance (sdd) were read from the \n{wl_sdd_path.name} file:"
+              f"\n\twl:\t{wl} Å\n\tsdd:\t{sdd} "
+              f"mm")
+        wl_sdd_conf = input("Please state whether these value are correct. "
+                            "([y]/n): ")
+        if not wl_sdd_conf.lower() in ["", "y", "n"]:
+            wl_sdd_conf = input("Please state whether these value are correct."
+                                "(y/n): ")
+        if wl_sdd_conf.lower() == "n":
+            wl = float(input(f"{80*'-'}\nPlease state the wavelength in "
+                             f"Ångström: "))
+            sdd = float(input(f"{80*'-'}\nPlease state the sample-to-detector-"
+                              f"distance in mm: "))
+        with wl_sdd_path.open(mode="w", encoding="utf-8") as o:
+            o.write(f"wavelength: {wl}\nsample-to-detector-distance: {sdd}\n")
     print(f"{80*'-'}\nPlease state the quantity and unit for the independent "
           f"variable:\n\t1\tfor Q in inverse Ångström.\n\t2\tfor Q in inverse "
           f"nm.\n\t3\tfor 2theta in degrees.")
@@ -437,7 +494,7 @@ def main():
     basecase = basecase_calculator(data_files_ext, scale_xmin, scale_xmax)
     print("Done calculating 'basecase' to use for scaling...")
     norm_paths = [Path(f"{data_esd_path}_normalized"),
-                   Path(f"{bkg_esd_path}_normalized")]
+                  Path(f"{bkg_esd_path}_normalized")]
     for e in norm_paths:
         if not e.exists():
             e.mkdir()
@@ -461,9 +518,13 @@ def main():
     print(f"{80*'-'}\nMaking stack plot of normalized files...")
     data_files_norm = list(data_norm_path.glob(f"*{data_files_ext}"))
     bkg_file_norm = list(bkg_norm_path.glob(f"*{data_files_ext}"))
-    data_dict_norm = data_files_to_dict(data_files_norm, type="data")
-    bkg_dict_norm = data_files_to_dict(bkg_file_norm, type="bkg")
-    data_bkg_dict_norm = data_files_to_dict(data_files_norm, type="data")
+    scan_split_index, scan_split_index2 = -1, None
+    data_dict_norm = data_files_to_dict(data_files_norm, scan_split_index,
+                                        scan_split_index2, type="data")
+    bkg_dict_norm = data_files_to_dict(bkg_file_norm, scan_split_index,
+                                       scan_split_index2, type="bkg")
+    data_bkg_dict_norm = data_files_to_dict(data_files_norm, scan_split_index,
+                                            scan_split_index2, type="data")
     data_bkg_dict_norm["bkg"] = bkg_dict_norm["bkg"]
     stack_plotter(data_bkg_dict_norm, basename, data_files_ext, xtype, xunit,
                   zfill, type="scaled")
@@ -471,7 +532,7 @@ def main():
           f"'png' folders.\n{80*'-'}\nSubtracting bkg from data files...")
     data_dict_bkg_sub = dict_bkg_subtract(data_dict_norm, bkg_dict_norm)
     print(f"Done subtracting bkg from data files.\n{80*'-'}\nWriting bkg "
-          f"bkg subtracted files...")
+          f"subtracted files...")
     data_bkg_sub_path = Path(f"{data_norm_path}_bkgsub")
     if not data_bkg_sub_path.exists():
         data_bkg_sub_path.mkdir()
