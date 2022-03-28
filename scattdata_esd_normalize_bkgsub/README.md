@@ -86,7 +86,7 @@ Next, a plot window will show the normalized files, including the background.
 Upon closing the plot window, the stack plot will be saved to the `pdf` and
 `png` folders.
 
-## Background subtraction
+## Background subtraction and overview plot
 After normalization of the data, the background is to be subtracted before doing
 an overview plot. Despite the background being scaled together with the data,
 further scaling of the background prior to subtraction of the data occurs to
