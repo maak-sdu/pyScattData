@@ -111,7 +111,9 @@ def pearson_correlation(data_ext):
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     im = ax.imshow(corr_matrix,
                    cmap=CMAP,
-                   extent=(startscan, endscan, endscan, startscan))
+                   extent=(startscan, endscan, endscan, startscan),
+                   aspect="equal",
+                   )
     ax.grid(False)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
     ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))

@@ -6,25 +6,25 @@ import matplotlib.pyplot as plt
 from matplotlib import cycler
 # from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
 
-DPI = 300
+DPI = 600
 FIGSIZE = (8,6)
 XLABEL_COMPS = r"$r$ $[\mathrm{\AA}]$"
 YLABEL_COMPS = r"$G$ $[\mathrm{\AA}^{-2}]$"
 XLABEL_PHASERATIO = "Scan number"
-YLABEL_PHASERATIO = "Phase ratio"
+YLABEL_PHASERATIO = "Weight"
 XLABEL_RECON = "Number of components"
-YLABEL_RECON = "Reconstruction error"
+YLABEL_RECON = "RE"
 XLABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
 YLABEL_ECHEM = r"$V$ $[\mathrm{V}]$"
 COLORS = ['#0B3C5D', '#B82601', '#1c6b0a', '#328CC1',
           '#a8b6c1', '#D9B310', '#984B43', '#76323F',
           '#626E60', '#AB987A', '#C09F80', '#b0b0b0ff']
 
-DISCHARGE_CHANGE = 5
+DISCHARGE_CHANGE = 5.75
 DISCHARGE_END = 11.82444444
-CHARGE_CHANGE = 15
+CHARGE_CHANGE = 15.25
 CHARGE_END = 19.84888889
-VLINES_NMF = [10.5, 23.5, 29.5, 38.75]
+VLINES_NMF = [12, 23.5, 30, 38.75]
 VLINES_ECHEM = [DISCHARGE_CHANGE, DISCHARGE_END, CHARGE_CHANGE, CHARGE_END]
 
 bg_mpl_style = {
@@ -280,14 +280,19 @@ def nmf_echem_plotter(xcomps, compnames, comps,
     for i in range(1, len(max_comps)):
         comps_offset = np.vstack((comps_offset, comps[i] + max_comps_sum[i] + 0.05*max_comps_sum[-1]))
     fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, nrows=2, ncols=2,
-                            gridspec_kw={'height_ratios': [2, 1]})
+                            gridspec_kw={'height_ratios': [2, 1],
+                                         'wspace':0.35,
+                                         'hspace':0.2,
+                                         }
+                            )
     plt.style.use(bg_mpl_style)
     axs[1,0].plot(xrecon, recon)
     axs[1,0].set_xlabel(XLABEL_RECON)
-    axs[1,0].set_ylabel("Recon. error")
+    axs[1,0].set_ylabel(YLABEL_RECON)
     axs[1,0].set_xticks(xrecon)
     axs[1,0].tick_params(axis="x", top="True", bottom="True", labeltop=False, labelbottom=True)
     axs[1,0].xaxis.set_label_position("bottom")
+    # axs[1,0].text(min(xcomps), 0.9*max(recon), "(c)")
     for i in range(len(compnames)):
         axs[0,0].plot(xcomps, comps_offset[i], label=compnames[i])
     # axs[0,0].legend(loc="upper right")
@@ -296,6 +301,7 @@ def nmf_echem_plotter(xcomps, compnames, comps,
     axs[0,0].set_ylabel(YLABEL_COMPS)#, fontsize=FONTSIZE)
     axs[0,0].tick_params(axis="x", top="True", bottom="True", labeltop=True, labelbottom=False)
     axs[0,0].xaxis.set_label_position("top")
+    # axs[0,0].text(min(xcomps), 0.9*max(comps_offset[-1]), "(a)")
     for i in range(len(phasenames)):
         axs[0,1].plot(scans, phaseratios[i], label=phasenames[i], marker="o")
     axs[0,1].set_xlabel(XLABEL_PHASERATIO)#, fontsize=FONTSIZE)
@@ -313,6 +319,18 @@ def nmf_echem_plotter(xcomps, compnames, comps,
     axs[1,1].set_ylabel(YLABEL_ECHEM)#, fontsize=FONTSIZE)
     for vline in VLINES_ECHEM:
         axs[1,1].axvline(x=vline, ls="--", c="k", lw=2)
+    # props = dict(fc="w", alpha=0.5, ec="None")
+    for i,ax in enumerate(axs.flat, start=97):
+        if i < 99:
+            t = ax.text(0.05, 0.9, f"({chr(i)})",
+                        transform=ax.transAxes,
+                        # bbox=props
+                        )
+        else:
+            ax.text(0.05, 0.8, f"({chr(i)})",
+                    transform=ax.transAxes,
+                    # bbox=props,
+                    )
     plt.subplots_adjust(wspace=0.3, hspace=0.1)
     fig.legend(compnames, loc='upper center', ncol=len(compnames), borderaxespad=-0.2,
                edgecolor='white')
