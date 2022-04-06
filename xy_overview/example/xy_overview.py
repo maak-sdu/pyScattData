@@ -3,12 +3,20 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from diffpy.utils.parsers.loaddata import loadData
+import matplotlib.ticker as ticker
+try:
+    from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
+    PLOT_STYLE = "found"
+except ModuleNotFoundError:
+    PLOT_STYLE = None
 
 
 FIGSIZE = (8,4)
 DPI = 600
+INDEX_LABEL = "Scan Number"
 FONTSIZE_LABELS = 20
 FONTSIZE_TICKS = 16
+CBAR_TICKS = 5
 CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
          10: 'YlOrBr', 11:'YlOrRd', 12:'OrRd', 13:'PuRd', 14:'RdPu',
@@ -27,6 +35,7 @@ CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
 XY_TYPES = ["I vs. Q [Å^-1]", "I vs. Q [nm^-1]", "I vs. 2theta [deg]",
             "G vs. r [Å]", "F vs. Q [Å^-1]", "y vs. x (general)"]
 
+
 def y_stack(data_files):
     for i in range(len(data_files)):
         print(f"\t{data_files[i].name}")
@@ -43,6 +52,7 @@ def y_stack(data_files):
 def xy_overview(x, y, cmap, output_folders, basename, xy_type_index, limits):
     xmin, xmax = limits["xmin"], limits["xmax"]
     ymin, ymax = limits["ymin"], limits["ymax"]
+    scans = y.shape[-1]
     if xy_type_index in [0, 4]:
         xlabel = r"$Q$ $[\mathrm{\AA}^{-1}]$"
     elif xy_type_index == 1:
@@ -61,14 +71,19 @@ def xy_overview(x, y, cmap, output_folders, basename, xy_type_index, limits):
         ylabel = r"$F$ $[\mathrm{\AA}^{-1}]$"
     elif xy_type_index == 5:
         ylabel = r"$y$"
+    if not isinstance(PLOT_STYLE, type(None)):
+        plt.style.use(bg_mpl_style)
+        plt.rcParams['xtick.labelbottom'] = False
+        plt.rcParams['xtick.labeltop'] = True
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
-    # xmin_index, xmax_index = None, None
     if isinstance(xmin, type(None)):
         plot_limits = None
         xmin, xmax, ymin, ymax = np.amin(x), np.amax(x), np.amin(y), np.amax(y)
+        xrange, yrange = xmax - xmin, ymax - ymin
         xmin_index, xmax_index = 0, -1
     else:
         plot_limits = "found"
+        xrange, yrange = xmax - xmin, ymax - ymin
         for i in range(0, len(x)):
             if xmin <= x[i]:
                 xmin_index = i
@@ -90,17 +105,46 @@ def xy_overview(x, y, cmap, output_folders, basename, xy_type_index, limits):
                    origin="lower",
                    vmin=ymin,
                    vmax=ymax,
-                   extent=(0, y.shape[-1], xmax, xmin),
+                   extent=(0, scans, xmax, xmin),
                    cmap=cmap
               )
-    ax.xaxis.tick_top()
+    if isinstance(PLOT_STYLE, type(None)):
+        ax.xaxis.tick_top()
     ax.xaxis.set_label_position('top')
-    ax.set_xlabel("Index", fontsize=FONTSIZE_LABELS)
+    ax.set_xlabel(INDEX_LABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(xlabel, fontsize=FONTSIZE_LABELS)
+    minor_ticks = 5
+    if scans <= 10:
+        base_scan = 1
+    elif 10 < scans <= 20:
+        base_scan = 2
+    elif 20 < scans <= 50:
+        base_scan = 5
+    else:
+        base_scan = 10
+    if xrange <= 10:
+        base_scatt = 1
+    elif 10 < xrange <= 20:
+        base_scatt = 2
+    elif 20 < xrange <= 50:
+        base_scatt = 5
+    else:
+        base_scatt = 10
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(base_scan))
+    ax.xaxis.set_minor_locator(ticker.MultipleLocator(base_scan / minor_ticks))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(base_scatt))
+    ax.yaxis.set_minor_locator(ticker.MultipleLocator(base_scatt / minor_ticks))
     if not isinstance(plot_limits, type(None)):
-        cbar = ax.figure.colorbar(im, ax=ax, ticks=np.linspace(ymin, ymax, 5))
+        cbar = ax.figure.colorbar(im,
+                                  ax=ax,
+                                  ticks=np.linspace(ymin, ymax, CBAR_TICKS)
+                                  )
+        if ymax > 100:
+            cbar.formatter.set_powerlimits((0, 0))
     else:
         cbar = ax.figure.colorbar(im, ax=ax)
+        if np.amax(y) > 100:
+            cbar.formatter.set_powerlimits((0, 0))
     cbar.set_label(label=ylabel, size=FONTSIZE_LABELS)
     for folder in output_folders:
         if isinstance(plot_limits, type(None)):
@@ -142,8 +186,8 @@ def main():
     for folder in output_folders:
         if not (Path.cwd() / folder).exists():
             (Path.cwd() / folder).mkdir()
-    cmap_xytype_path = Path.cwd() / "cmap_xytype.txt"
-    if not cmap_xytype_path.exists():
+    user_input_path = Path.cwd() / "user_inputs.txt"
+    if not user_input_path.exists():
         cmap_input = input(f"{80*'-'}\nThe default cmap is {CMAPS[0]}. Do you "
                            f"want to plot using the default cmap?\n([y]/n): ")
         if cmap_input.lower() in ["", "y"]:
@@ -160,10 +204,10 @@ def main():
             print(f"\t{i}\t{XY_TYPES[i]}")
         xy_type_index = int(input("Please indicate the type of xy data that you "
                                   "are plotting: "))
-        with cmap_xytype_path.open(mode="w", encoding="utf8") as f:
+        with user_input_path.open(mode="w", encoding="utf8") as f:
             f.write(f"cmap\t{cmap}\nxytype\t{xy_type_index}")
     else:
-        with cmap_xytype_path.open(mode="r") as f:
+        with user_input_path.open(mode="r") as f:
             lines = f.readlines()
         for line in lines:
             if "cmap" in line:
@@ -171,7 +215,7 @@ def main():
             elif "xytype" in line:
                 xy_type_index = int(line.split()[-1])
         print(f"{80*'-'}\nThe following default values were read from "
-              f"{cmap_xytype_path.name}:\n\tcmap: {cmap}\n\txy_type: "
+              f"{user_input_path.name}:\n\tcmap: {cmap}\n\txy_type: "
               f"{XY_TYPES[xy_type_index]}")
         cmap_input = input(f"{80*'-'}\nDo you want to plot using the default "
                            f"cmap? ([y]/n): ")
@@ -182,17 +226,20 @@ def main():
                 print(f"\t{i}\t{CMAPS[cmap_keys[i]]}")
             cmap_input = input(f"Please provide the index of the desired cmap: ")
             cmap = CMAPS[int(cmap_input)]
-        xy_type_input = input(f"{80*'-'}\nThe default xy type is "
-                              f"'{XY_TYPES[xy_type_index]}'.\nDo you want to "
-                              f"plot using the default xy type? ([y]/n): ")
+        xy_type_input = input(f"{80*'-'}\nDo you want to plot using the "
+                              f"default xy type? ([y]/n): ")
         if xy_type_input.lower() == "n":
             print(f"{80*'-'}\nData type...\n\tindex\ttype")
             for i in range(len(XY_TYPES)):
                 print(f"\t{i}\t{XY_TYPES[i]}")
             xy_type_index = int(input("Please indicate the type of xy data that you "
                                       "are plotting: "))
-        with cmap_xytype_path.open(mode="w", encoding="utf8") as f:
+        with user_input_path.open(mode="w", encoding="utf8") as f:
             f.write(f"cmap\t{cmap}\nxytype\t{xy_type_index}")
+    if isinstance(PLOT_STYLE, type(None)):
+        print(f"{80*'-'}\n'bg_mpl_stylesheet' module not found. Consider "
+              f"installing this to your current\nconda environment:\n\tconda "
+              f"install -c conda-forge bg-mpl-stylesheets")
     print(f"{80*'-'}\nMaking overview plot in full range...")
     limits = dict(xmin=None, xmax=None, ymin=None, ymax=None)
     basename = data_files[0].stem
