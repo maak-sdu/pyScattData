@@ -22,17 +22,20 @@ If data files have been properly placed in the data directory, the code will
 stack the files in an array that will be ready for plotting. The filenames are
 printed to the terminal in the order that they are read by the program. Hence,
 the user can confirm that files are read in the right order. If not, please name
-the data files alpha numerically such that will be read in the read order.
+the data files alpha numerically such that will be read in the read order and
+rerun the code.
 
 ### User inputs
 The user will be prompted for colormap (cmap) and data type (xytype). These does
 not affect the execution of the program, but solely the appearance of the plots.
-The values will be saved to a 'user_inputs.txt' file. If
+The values will be saved to a 'user_inputs.txt' file. If the code is rerun,
+the values from this file will be used as default values upon confirmation by
+the user. The file will be overwritten each time new settings are chosen.
 
 ### Plot of all data
-Initially, an overview plot using x and y limits read from the data values, and
-the whole data range is plotted. Plots are saved to the created 'pdf', 'png',
-and 'svg' folders.
+Initially, an overview plot using x and y limits read from the data values is
+created, and the whole data range is plotted. Plots are saved to the created
+'pdf', 'png', and 'svg' folders.
 
 ### Plot(s) with customary limits
 Thereafter, the user will be asked for whether a plot with customary limits is
@@ -41,4 +44,4 @@ y-values. The x-limits shape the matrix that is plotted, and the y-limits set
 the color scale of the color bar. Again, plots are saved to the output folders.
 
 Again, the user is asked whether an additional customary plot is desired. This
-continues until the point where this is not the case and the program ends.
+continues until the point where this is not the case and the program terminates.
