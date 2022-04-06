@@ -146,6 +146,7 @@ def xy_overview(x, y, cmap, output_folders, basename, xy_type_index, limits):
         if np.amax(y) > 100:
             cbar.formatter.set_powerlimits((0, 0))
     cbar.set_label(label=ylabel, size=FONTSIZE_LABELS)
+    cbar.minorticks_on()
     for folder in output_folders:
         if isinstance(plot_limits, type(None)):
             output_path = Path.cwd() / folder / f"{basename}.{folder}"
