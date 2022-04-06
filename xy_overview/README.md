@@ -7,14 +7,14 @@ can be seen from the terminal print.
 ## Flow of the program
 
 ### Directory structure
-First time, the code is run, it will look for a directory called 'data'. If this
-does not exists, a folder called 'data' will be created and the user will be
+First time, the code is run, it will look for a directory called `data`. If this
+does not exists, a folder called `data` will be created and the user will be
 asked to put the data files there and rerun the code.
 
-If the 'data' folder already exists but is empty, the user will be told this,
+If the `data` folder already exists but is empty, the user will be told this,
 to add data files, and rerun the code.
 
-If multiple file extensions are found in the 'data' folder, the user is told to
+If multiple file extensions are found in the `data` folder, the user is told to
 review the files in the data folder and rerun the code.
 
 ### Naming files to have them read in the right order
@@ -26,16 +26,17 @@ the data files alpha numerically such that will be read in the read order and
 rerun the code.
 
 ### User inputs
-The user will be prompted for colormap (cmap) and data type (xytype). These does
-not affect the execution of the program, but solely the appearance of the plots.
-The values will be saved to a 'user_inputs.txt' file. If the code is rerun,
-the values from this file will be used as default values upon confirmation by
-the user. The file will be overwritten each time new settings are chosen.
+The user will be prompted for colormap (`cmap`) and data type (`xytype`). These
+does not affect the execution of the program, but solely the appearance of the
+plots. The values will be saved to a `user_inputs.txt` file. If the code is
+rerun, the values from this file will be used as default values upon
+confirmation by the user. The file will be overwritten each time new settings
+are chosen.
 
 ### Plot of all data
 Initially, an overview plot using x and y limits read from the data values is
 created, and the whole data range is plotted. Plots are saved to the created
-'pdf', 'png', and 'svg' folders.
+`pdf`, `png`, and `svg` folders.
 
 ### Plot(s) with customary limits
 Thereafter, the user will be asked for whether a plot with customary limits is
