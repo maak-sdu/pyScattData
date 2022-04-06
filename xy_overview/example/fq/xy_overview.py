@@ -16,6 +16,7 @@ DPI = 600
 INDEX_LABEL = "Scan Number"
 FONTSIZE_LABELS = 20
 FONTSIZE_TICKS = 16
+MINOR_TICK_INDEX = 5
 CBAR_TICKS = 5
 CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
@@ -113,7 +114,6 @@ def xy_overview(x, y, cmap, output_folders, basename, xy_type_index, limits):
     ax.xaxis.set_label_position('top')
     ax.set_xlabel(INDEX_LABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(xlabel, fontsize=FONTSIZE_LABELS)
-    minor_ticks = 5
     if scans <= 10:
         base_scan = 1
     elif 10 < scans <= 20:
@@ -131,9 +131,9 @@ def xy_overview(x, y, cmap, output_folders, basename, xy_type_index, limits):
     else:
         base_scatt = 10
     ax.xaxis.set_major_locator(ticker.MultipleLocator(base_scan))
-    ax.xaxis.set_minor_locator(ticker.MultipleLocator(base_scan / minor_ticks))
+    ax.xaxis.set_minor_locator(ticker.MultipleLocator(base_scan / MINOR_TICK_INDEX))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(base_scatt))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(base_scatt / minor_ticks))
+    ax.yaxis.set_minor_locator(ticker.MultipleLocator(base_scatt / MINOR_TICK_INDEX))
     if not isinstance(plot_limits, type(None)):
         cbar = ax.figure.colorbar(im,
                                   ax=ax,
@@ -154,6 +154,7 @@ def xy_overview(x, y, cmap, output_folders, basename, xy_type_index, limits):
             fname = f"{basename}_x={xmin}-{xmax}_y={ymin}-{ymax}.{folder}"
             output_path = Path.cwd() / folder / fname
         plt.savefig(output_path, bbox_inches="tight")
+    plt.close()
 
     return None
 
