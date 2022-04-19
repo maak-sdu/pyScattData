@@ -1,0 +1,28 @@
+{
+    "dpi": 600.0,
+    "figsize": [
+        8,
+        8
+    ],
+    "fontsize_labels": 20,
+    "fontsize_ticks": 16,
+    "cmap_upper": "viridis",
+    "cbar_ticks_upper": 7,
+    "minor_tick_index_upper": 5,
+    "index_label_upper": "Scan Number",
+    "xytype_index_upper": "4",
+    "xmin_upper": 1.0,
+    "xmax_upper": 10,
+    "ymin_upper": -0.5,
+    "ymax_upper": 1,
+    "cmap_lower": "seismic",
+    "cbar_ticks_lower": 9,
+    "minor_tick_index_lower": 5,
+    "index_label_lower": "Scan Number",
+    "xytype_index_lower": "3",
+    "xmin_lower": 1.0,
+    "xmax_lower": 10,
+    "ymin_lower": -1.0,
+    "ymax_lower": 1,
+    "hspace": 0.1
+}
