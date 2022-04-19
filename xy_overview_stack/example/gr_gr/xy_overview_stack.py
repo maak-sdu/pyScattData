@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 import json
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from diffpy.utils.parsers.loaddata import loadData
 import matplotlib.ticker as ticker
