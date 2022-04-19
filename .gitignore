@@ -132,3 +132,11 @@ xy_overview_stack/example/fq_gr/svg
 xy_overview_stack/example/gr_gr/pdf
 xy_overview_stack/example/gr_gr/png
 xy_overview_stack/example/gr_gr/svg
+
+# xy_overview_stack_echem
+xy_overview_stack_echem/example/fq_gr/pdf
+xy_overview_stack_echem/example/fq_gr/png
+xy_overview_stack_echem/example/fq_gr/svg
+xy_overview_stack_echem/example/gr_gr/pdf
+xy_overview_stack_echem/example/gr_gr/png
+xy_overview_stack_echem_/example/gr_gr/svg
