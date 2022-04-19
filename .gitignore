@@ -111,7 +111,7 @@ xy_overview/example/iq/png
 xy_overview/example/iq/svg
 xy_overview/example/iq/user_inputs.txt
 
-# xy_overview
+# xy_overview_echem
 xy_overview_echem/example/fq/pdf
 xy_overview_echem/example/fq/png
 xy_overview_echem/example/fq/svg
@@ -124,3 +124,13 @@ xy_overview_echem/example/iq/pdf
 xy_overview_echem/example/iq/png
 xy_overview_echem/example/iq/svg
 xy_overview_echem/example/iq/user_inputs.json
+
+# xy_overview_stack
+xy_overview_stack/example/fq_gr/pdf
+xy_overview_stack/example/fq_gr/png
+xy_overview_stack/example/fq_gr/svg
+xy_overview_stack/example/fq_gr/user_inputs.json
+xy_overview_stack/example/gr_gr/pdf
+xy_overview_stack/example/gr_gr/png
+xy_overview_stack/example/gr_gr/svg
+xy_overview_stack/example/gr_gr/user_inputs.json
