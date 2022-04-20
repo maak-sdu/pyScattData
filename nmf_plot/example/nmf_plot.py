@@ -34,7 +34,7 @@ MAJOR_TICK_INDEX_R = 10
 MAJOR_TICK_INDEX_G = 0.5
 MAJOR_TICK_INDEX_RE = 5
 MINOR_TICKS = 5
-WSPACE = 0.1
+WSPACE = 0.45
 HSPACE = 0.1
 COLORS = ['#0B3C5D', '#B82601', '#1c6b0a', '#328CC1',
           '#a8b6c1', '#D9B310', '#984B43', '#76323F',
@@ -320,8 +320,8 @@ def nmf_echem_plotter(xcomps, compnames, comps,
         comps_offset = np.vstack((comps_offset, comps[i] + max_comps_sum[i] + 0.05*max_comps_sum[-1]))
     fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, nrows=2, ncols=2,
                             gridspec_kw={'height_ratios': [2, 1],
-                                         'wspace':0.35,
-                                         'hspace':0.2,
+                                         'wspace': WSPACE,
+                                         'hspace': HSPACE,
                                          }
                             )
     plt.style.use(bg_mpl_style)
@@ -377,14 +377,12 @@ def nmf_echem_plotter(xcomps, compnames, comps,
     axs[1,1].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / MINOR_TICKS))
     axs[1,1].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE))
     axs[1,1].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE / MINOR_TICKS))
-    # props = dict(fc="w", alpha=0.5, ec="None")
-    fig.legend(compnames, loc='upper center', ncol=len(compnames), borderaxespad=-0.2,
-               edgecolor='white')
+    fig.legend(compnames, loc='upper center', ncol=len(compnames),
+               borderaxespad=-0.2, edgecolor='white')
     axs[0,0].text(0.84, 0.9, "(a)", transform=axs[0,0].transAxes)
     axs[1,0].text(0.84, 0.8, "(b)", transform=axs[1,0].transAxes)
     axs[0,1].text(0.05, 0.9, "(c)", transform=axs[0,1].transAxes)
     axs[1,1].text(0.05, 0.8, "(d)", transform=axs[1,1].transAxes)
-    fig.subplots_adjust(wspace=WSPACE, hspace=HSPACE)
     plt.savefig("png/nmf_echem.png", bbox_inches="tight")
     plt.savefig("pdf/nmf_echem.pdf", bbox_inches="tight")
     plt.savefig("svg/nmf_echem.svg", bbox_inches="tight")
@@ -417,18 +415,18 @@ def main():
         if time[i] < 22.1:
             time_max_index = i + 1
     time, voltage = time[0:time_max_index], voltage[0:time_max_index]
-    # print(f"{80*'-'}\nPlotting...\n\tcomponents")
-    # comp_plotter(xcomps, compnames, comps)
-    # print("\tweights")
-    # phase_plotter(scans, phasenames, phasecomps)
-    # print("\treconstruction error")
-    # recon_plotter(xrecon, recon)
-    # print("\techem")
-    # echem_plotter(time, voltage)
-    # print("\treconstruction error and components together")
-    # recon_comp_plotter(xcomps, compnames, comps, xrecon, recon)
-    # print("\tweights and echem together")
-    # phase_echem_plotter(scans, phasenames, phasecomps, time, voltage)
+    print(f"{80*'-'}\nPlotting...\n\tcomponents")
+    comp_plotter(xcomps, compnames, comps)
+    print("\tweights")
+    phase_plotter(scans, phasenames, phasecomps)
+    print("\treconstruction error")
+    recon_plotter(xrecon, recon)
+    print("\techem")
+    echem_plotter(time, voltage)
+    print("\treconstruction error and components together")
+    recon_comp_plotter(xcomps, compnames, comps, xrecon, recon)
+    print("\tweights and echem together")
+    phase_echem_plotter(scans, phasenames, phasecomps, time, voltage)
     print("\teverything together")
     nmf_echem_plotter(xcomps, compnames, comps,
                           scans, phasenames, phasecomps,

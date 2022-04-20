@@ -4,8 +4,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cycler
+from matplotlib.ticker import MultipleLocator
 # from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
 
+ECHEMLABEL_DICT = {"V_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
+                                  y = r"$V$ $[\mathrm{V}]$"),
+                   "Ewe_Li_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
+                                       y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Li/Li$^{+} [\mathrm{V}]$"),
+                   "Ewe_Na_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
+                                       y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Na/Na$^{+} [\mathrm{V}]$")
+                    }
 DPI = 600
 FIGSIZE = (8,6)
 XLABEL_COMPS = r"$r$ $[\mathrm{\AA}]$"
@@ -14,8 +22,20 @@ XLABEL_PHASERATIO = "Scan number"
 YLABEL_PHASERATIO = "Weight"
 XLABEL_RECON = "Number of components"
 YLABEL_RECON = "RE"
-XLABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
-YLABEL_ECHEM = r"$V$ $[\mathrm{V}]$"
+XLABEL_ECHEM = ECHEMLABEL_DICT["Ewe_Li_t[h]"]["x"]
+YLABEL_ECHEM = ECHEMLABEL_DICT["Ewe_Li_t[h]"]["y"]
+VOLTAGE_MIN = 1
+VOLTAGE_MAX = 3
+MAJOR_TICK_INDEX_TIME = 5
+MAJOR_TICK_INDEX_VOLTAGE = 0.5
+MAJOR_TICK_INDEX_SCAN = 10
+MAJOR_TICK_INDEX_WEIGHT = 0.2
+MAJOR_TICK_INDEX_R = 10
+MAJOR_TICK_INDEX_G = 0.5
+MAJOR_TICK_INDEX_RE = 5
+MINOR_TICKS = 5
+WSPACE = 0.45
+HSPACE = 0.1
 COLORS = ['#0B3C5D', '#B82601', '#1c6b0a', '#328CC1',
           '#a8b6c1', '#D9B310', '#984B43', '#76323F',
           '#626E60', '#AB987A', '#C09F80', '#b0b0b0ff']
@@ -26,6 +46,8 @@ CHARGE_CHANGE = 15.25
 CHARGE_END = 19.84888889
 VLINES_NMF = [12, 23.5, 30, 38.75]
 VLINES_ECHEM = [DISCHARGE_CHANGE, DISCHARGE_END, CHARGE_CHANGE, CHARGE_END]
+
+
 
 bg_mpl_style = {
     ####################
@@ -107,6 +129,7 @@ bg_mpl_style = {
     'savefig.bbox': 'tight'
 }
 
+
 def comp_extracter(compfile):
     df = pd.read_csv(compfile)
     xcomps = [df[col].to_numpy() for col in df.columns if "Unnamed" in col][0]
@@ -119,7 +142,7 @@ def comp_extracter(compfile):
 def phase_extracter(phasefile):
     df = pd.read_csv(phasefile)
     rows = df.to_numpy()
-    scans = np.array([int(col)+1 for col in df.columns if not "Unnamed" in col])
+    scans = np.array([int(col) for col in df.columns if not "Unnamed" in col])
     phasenames = np.array([int(rows[i][0])+1 for i in range(rows.shape[0])])
     phaseratios = np.array([rows[i][1:] for i in range(rows.shape[0])])
 
@@ -148,9 +171,11 @@ def comp_plotter(xcomps, compnames, comps):
     # plt.xlim(np.amin(xcomps), np.amax(xcomps))
     plt.xlabel(XLABEL_COMPS)#, fontsize=FONTSIZE)
     plt.ylabel(YLABEL_COMPS)#, fontsize=FONTSIZE)
+    plt.xlim(np.amin(xcomps), np.amax(xcomps))
     # plt.show()
     plt.savefig("png/components.png", bbox_inches="tight")
     plt.savefig("pdf/components.pdf", bbox_inches="tight")
+    plt.savefig("svg/components.svg", bbox_inches="tight")
     plt.close()
 
     return None
@@ -164,11 +189,12 @@ def phase_plotter(scans, phasenames, phaseratios):
         plt.plot(scans, phaseratios[i], label=phasenames[i], marker="o")
     plt.xlabel(XLABEL_PHASERATIO)#, fontsize=FONTSIZE)
     plt.ylabel(YLABEL_PHASERATIO)#, fontsize=FONTSIZE)
-    # plt.xlim(np.amin(scans), np.amax(scans))
+    plt.xlim(np.amin(scans), np.amax(scans))
     # plt.ylim(-0.025, 1+0.025)
     # plt.show()
     plt.savefig("png/phase_ratio.png", bbox_inches="tight")
     plt.savefig("pdf/phase_ratio.pdf", bbox_inches="tight")
+    plt.savefig("svg/phase_ratio.svg", bbox_inches="tight")
     plt.close()
 
     return None
@@ -182,9 +208,11 @@ def recon_plotter(xrecon, recon):
     plt.xlabel(XLABEL_RECON)
     plt.ylabel(YLABEL_RECON)
     plt.xticks(xrecon)
+    plt.xlim(np.amin(xrecon), np.amax(xrecon))
     # plt.show()
     plt.savefig("png/recon_error.png", bbox_inches="tight")
     plt.savefig("pdf/recon_error.pdf", bbox_inches="tight")
+    plt.savefig("svg/recon_error.svg", bbox_inches="tight")
     plt.close()
 
     return None
@@ -196,7 +224,8 @@ def recon_comp_plotter(xcomps, compnames, comps, xrecon, recon):
     comps_offset = comps[0]
     for i in range(1, len(max_comps)):
         comps_offset = np.vstack((comps_offset, comps[i] + max_comps_sum[i] + 0.05*max_comps_sum[-1]))
-    fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, nrows=2, ncols=1)
+    fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, nrows=2, ncols=1,
+                            )
     # fig, axs = plt.subplots(nrows=2, ncols=1)
     # print(plt.rcParams.keys())
     # sys.exit()
@@ -206,15 +235,18 @@ def recon_comp_plotter(xcomps, compnames, comps, xrecon, recon):
     axs[0].set_xticks(xrecon)
     axs[0].tick_params(axis="x", top="True", bottom="True", labeltop=True, labelbottom=False)
     axs[0].xaxis.set_label_position("top")
+    axs[0].set_xlim(np.amin(xrecon), np.amax(xrecon))
     for i in range(len(compnames)):
         axs[1].plot(xcomps, comps_offset[i], label=compnames[i])
     axs[1].legend(loc="upper right")
     # plt.xlim(np.amin(xcomps), np.amax(xcomps))
     axs[1].set_xlabel(XLABEL_COMPS)#, fontsize=FONTSIZE)
     axs[1].set_ylabel(YLABEL_COMPS)#, fontsize=FONTSIZE)
+    axs[1].set_xlim(np.amin(xcomps), np.amax(xcomps))
     # plt.show()
     plt.savefig("png/recon_comp.png", bbox_inches="tight")
     plt.savefig("pdf/recon_comp.pdf", bbox_inches="tight")
+    plt.savefig("svg/recon_comp.svg", bbox_inches="tight")
     plt.close()
 
     return None
@@ -233,15 +265,18 @@ def echem_plotter(time, voltage):
     plt.plot(time, voltage)
     plt.xlabel(XLABEL_ECHEM)
     plt.ylabel(YLABEL_ECHEM)
+    plt.xlim(np.amin(time), np.amax(time))
+    plt.ylim(VOLTAGE_MIN, VOLTAGE_MAX)
     # plt.show()
     plt.savefig("png/echem.png", bbox_inches="tight")
     plt.savefig("pdf/echem.pdf", bbox_inches="tight")
+    plt.savefig("svg/echem.svg", bbox_inches="tight")
     plt.close()
 
     return None
 
 
-def phase_chem_plotter(scans, phasenames, phaseratios, time, voltage):
+def phase_echem_plotter(scans, phasenames, phaseratios, time, voltage):
     fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, nrows=2, ncols=1,
                             gridspec_kw={'height_ratios': [2, 1]})
     # phasefig = plt.figure()
@@ -252,6 +287,7 @@ def phase_chem_plotter(scans, phasenames, phaseratios, time, voltage):
     axs[0].set_ylabel(YLABEL_PHASERATIO)#, fontsize=FONTSIZE)
     axs[0].tick_params(axis="x", top="True", bottom="True", labeltop=True, labelbottom=False)
     axs[0].xaxis.set_label_position("top")
+    axs[0].set_xlim(np.amin(scans), np.amax(scans))
     fig.legend(phasenames, loc='upper center', ncol=len(phasenames), borderaxespad=-0.2,
                edgecolor='white')
     for vline in VLINES_NMF:
@@ -261,10 +297,13 @@ def phase_chem_plotter(scans, phasenames, phaseratios, time, voltage):
     axs[1].set_ylabel(YLABEL_ECHEM)#, fontsize=FONTSIZE)
     for vline in VLINES_ECHEM:
         axs[1].axvline(x=vline, ls="--", c="k", lw=2)
+    axs[1].set_xlim(np.amin(time), np.amax(time))
+    axs[1].set_ylim(VOLTAGE_MIN, VOLTAGE_MAX)
     # plt.show()
     plt.subplots_adjust(hspace=0.1)
     plt.savefig("png/phaseratio_echem.png", bbox_inches="tight")
     plt.savefig("pdf/phaseratio_echem.pdf", bbox_inches="tight")
+    plt.savefig("svg/phaseratio_echem.svg", bbox_inches="tight")
     plt.close()
 
     return None
@@ -281,18 +320,11 @@ def nmf_echem_plotter(xcomps, compnames, comps,
         comps_offset = np.vstack((comps_offset, comps[i] + max_comps_sum[i] + 0.05*max_comps_sum[-1]))
     fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, nrows=2, ncols=2,
                             gridspec_kw={'height_ratios': [2, 1],
-                                         'wspace':0.35,
-                                         'hspace':0.2,
+                                         'wspace': WSPACE,
+                                         'hspace': HSPACE,
                                          }
                             )
     plt.style.use(bg_mpl_style)
-    axs[1,0].plot(xrecon, recon)
-    axs[1,0].set_xlabel(XLABEL_RECON)
-    axs[1,0].set_ylabel(YLABEL_RECON)
-    axs[1,0].set_xticks(xrecon)
-    axs[1,0].tick_params(axis="x", top="True", bottom="True", labeltop=False, labelbottom=True)
-    axs[1,0].xaxis.set_label_position("bottom")
-    # axs[1,0].text(min(xcomps), 0.9*max(recon), "(c)")
     for i in range(len(compnames)):
         axs[0,0].plot(xcomps, comps_offset[i], label=compnames[i])
     # axs[0,0].legend(loc="upper right")
@@ -301,6 +333,21 @@ def nmf_echem_plotter(xcomps, compnames, comps,
     axs[0,0].set_ylabel(YLABEL_COMPS)#, fontsize=FONTSIZE)
     axs[0,0].tick_params(axis="x", top="True", bottom="True", labeltop=True, labelbottom=False)
     axs[0,0].xaxis.set_label_position("top")
+    axs[0,0].set_xlim(np.amin(xcomps), np.amax(xcomps))
+    axs[0,0].xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_R))
+    axs[0,0].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_R / MINOR_TICKS))
+    axs[0,0].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_G))
+    axs[0,0].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_G / MINOR_TICKS))
+    axs[1,0].plot(xrecon, recon)
+    axs[1,0].set_xlabel(XLABEL_RECON)
+    axs[1,0].set_ylabel(YLABEL_RECON)
+    axs[1,0].set_xticks(xrecon)
+    axs[1,0].tick_params(axis="x", top="True", bottom="True", labeltop=False, labelbottom=True)
+    axs[1,0].xaxis.set_label_position("bottom")
+    axs[1,0].set_xlim(np.amin(xrecon), np.amax(xrecon))
+    axs[1,0].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_RE))
+    axs[1,0].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_RE / MINOR_TICKS))
+    # axs[1,0].text(min(xcomps), 0.9*max(recon), "(c)")
     # axs[0,0].text(min(xcomps), 0.9*max(comps_offset[-1]), "(a)")
     for i in range(len(phasenames)):
         axs[0,1].plot(scans, phaseratios[i], label=phasenames[i], marker="o")
@@ -313,63 +360,80 @@ def nmf_echem_plotter(xcomps, compnames, comps,
     axs[0,1].xaxis.set_label_position("top")
     for vline in VLINES_NMF:
         axs[0,1].axvline(x=vline, ls="--", c="k", lw=2)
+    axs[0,1].set_xlim(np.amin(scans), np.amax(scans))
+    axs[0,1].xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_SCAN))
+    axs[0,1].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_SCAN / MINOR_TICKS))
+    axs[0,1].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_WEIGHT))
+    axs[0,1].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_WEIGHT / MINOR_TICKS))
     # axs[0,1].legend(loc="upper right")
     axs[1,1].plot(time, voltage)
     axs[1,1].set_xlabel(XLABEL_ECHEM)#, fontsize=FONTSIZE)
     axs[1,1].set_ylabel(YLABEL_ECHEM)#, fontsize=FONTSIZE)
     for vline in VLINES_ECHEM:
         axs[1,1].axvline(x=vline, ls="--", c="k", lw=2)
-    # props = dict(fc="w", alpha=0.5, ec="None")
-    for i,ax in enumerate(axs.flat, start=97):
-        if i < 99:
-            t = ax.text(0.05, 0.9, f"({chr(i)})",
-                        transform=ax.transAxes,
-                        # bbox=props
-                        )
-        else:
-            ax.text(0.05, 0.8, f"({chr(i)})",
-                    transform=ax.transAxes,
-                    # bbox=props,
-                    )
-    plt.subplots_adjust(wspace=0.3, hspace=0.1)
-    fig.legend(compnames, loc='upper center', ncol=len(compnames), borderaxespad=-0.2,
-               edgecolor='white')
+    axs[1,1].set_xlim(np.amin(time), np.amax(time))
+    axs[1,1].set_ylim(VOLTAGE_MIN, VOLTAGE_MAX)
+    axs[1,1].xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME))
+    axs[1,1].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / MINOR_TICKS))
+    axs[1,1].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE))
+    axs[1,1].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE / MINOR_TICKS))
+    fig.legend(compnames, loc='upper center', ncol=len(compnames),
+               borderaxespad=-0.2, edgecolor='white')
+    axs[0,0].text(0.84, 0.9, "(a)", transform=axs[0,0].transAxes)
+    axs[1,0].text(0.84, 0.8, "(b)", transform=axs[1,0].transAxes)
+    axs[0,1].text(0.05, 0.9, "(c)", transform=axs[0,1].transAxes)
+    axs[1,1].text(0.05, 0.8, "(d)", transform=axs[1,1].transAxes)
     plt.savefig("png/nmf_echem.png", bbox_inches="tight")
     plt.savefig("pdf/nmf_echem.pdf", bbox_inches="tight")
+    plt.savefig("svg/nmf_echem.svg", bbox_inches="tight")
     plt.close()
 
     return None
 
 
 def main():
-    folders = ["png", "pdf"]
+    print(f"{80*'-'}\nPlease see the top of this .py file for plot settings.")
+    folders = ["png", "pdf", "svg"]
     for folder in folders:
         if not (Path.cwd() / folder).exists():
             (Path.cwd() / folder).mkdir()
     csvfiles = list((Path.cwd() / "data").glob("*.csv"))
     compfile, phasefile, reconfile = csvfiles[0], csvfiles[1], csvfiles[2]
+    print(f"{80*'-'}\nExtracting...\n\tcomponents")
     xcomps, compnames, comps = comp_extracter(compfile)
+    print("\tweights")
     scans, phasenames, phasecomps = phase_extracter(phasefile)
     for i in range(len(scans)):
         if scans[i] > 30:
             scans[i] = scans[i]+2
+    print("\treconstruction error")
     xrecon, recon = recon_extracter(reconfile)
-    comp_plotter(xcomps, compnames, comps)
-    phase_plotter(scans, phasenames, phasecomps)
-    recon_plotter(xrecon, recon)
-    recon_comp_plotter(xcomps, compnames, comps, xrecon, recon)
     echemfile = list((Path.cwd() / "data").glob("*.txt"))[0]
+    print("\techem")
     time, voltage = echem_collector(echemfile)
     for i in range(len(time)):
         if time[i] < 22.1:
             time_max_index = i + 1
     time, voltage = time[0:time_max_index], voltage[0:time_max_index]
+    print(f"{80*'-'}\nPlotting...\n\tcomponents")
+    comp_plotter(xcomps, compnames, comps)
+    print("\tweights")
+    phase_plotter(scans, phasenames, phasecomps)
+    print("\treconstruction error")
+    recon_plotter(xrecon, recon)
+    print("\techem")
     echem_plotter(time, voltage)
-    phase_chem_plotter(scans, phasenames, phasecomps, time, voltage)
+    print("\treconstruction error and components together")
+    recon_comp_plotter(xcomps, compnames, comps, xrecon, recon)
+    print("\tweights and echem together")
+    phase_echem_plotter(scans, phasenames, phasecomps, time, voltage)
+    print("\teverything together")
     nmf_echem_plotter(xcomps, compnames, comps,
                           scans, phasenames, phasecomps,
                           xrecon, recon,
                           time, voltage)
+    print(f"{80*'-'}\nDone plotting.\nPlease see the plots in the output "
+          f"folders.")
 
     return None
 
