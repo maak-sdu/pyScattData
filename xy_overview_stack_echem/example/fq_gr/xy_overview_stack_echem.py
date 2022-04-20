@@ -2,6 +2,8 @@ import sys
 from pathlib import Path
 from diffpy.utils.parsers.loaddata import loadData
 import numpy as np
+import matplotlib
+from mpl_toolkits.axes_grid1 import AxesGrid
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import GridSpec
@@ -11,6 +13,60 @@ try:
 except ModuleNotFoundError:
     PLOT_STYLE = None
 
+
+def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
+    '''
+    Function to offset the "center" of a colormap. Useful for
+    data with a negative min and positive max and you want the
+    middle of the colormap's dynamic range to be at zero.
+
+    Input
+    -----
+      cmap : The matplotlib colormap to be altered
+      start : Offset from lowest point in the colormap's range.
+          Defaults to 0.0 (no lower offset). Should be between
+          0.0 and `midpoint`.
+      midpoint : The new center of the colormap. Defaults to
+          0.5 (no shift). Should be between 0.0 and 1.0. In
+          general, this should be  1 - vmax / (vmax + abs(vmin))
+          For example if your data range from -15.0 to +5.0 and
+          you want the center of the colormap at 0.0, `midpoint`
+          should be set to  1 - 5/(5 + 15)) or 0.75
+      stop : Offset from highest point in the colormap's range.
+          Defaults to 1.0 (no upper offset). Should be between
+          `midpoint` and 1.0.
+    '''
+    cdict = {
+        'red': [],
+        'green': [],
+        'blue': [],
+        'alpha': []
+    }
+
+    # regular index to compute the colors
+    reg_index = np.linspace(start, stop, 257)
+
+    # shifted index to match the data
+    shift_index = np.hstack([
+        np.linspace(0.0, midpoint, 128, endpoint=False),
+        np.linspace(midpoint, 1.0, 129, endpoint=True)
+    ])
+
+    for ri, si in zip(reg_index, shift_index):
+        r, g, b, a = cmap(ri)
+
+        cdict['red'].append((si, r, r))
+        cdict['green'].append((si, g, g))
+        cdict['blue'].append((si, b, b))
+        cdict['alpha'].append((si, a, a))
+
+    newcmap = matplotlib.colors.LinearSegmentedColormap(name, cdict)
+    plt.register_cmap(cmap=newcmap)
+
+    return newcmap
+
+ORIG_CMAP = matplotlib.cm.seismic
+SHRUNK_CMAP = shiftedColorMap(ORIG_CMAP, start=-0.5, midpoint=0.0, stop=1.0, name='shrunk')
 
 SCATTLABEL_DICT = {"gr": dict(x = r"$r$ $[\mathrm{\AA}]$",
                               y = r"$G$ $[\mathrm{\AA}^{-2}]$"),
@@ -77,14 +133,13 @@ PLOT_DICT = dict(dpi = 600,
                  minor_tick_index_upper = 5,
                  minor_tick_index_lower = 5,
                  minor_tick_index_echem = 5,
-                 cmap_upper = "viridis",
+                 cmap_upper = SHRUNK_CMAP,
                  cmap_lower = "seismic",
                  cbar_ticks_upper = 7,
                  cbar_ticks_lower = 5,
                  color = "k",
                  linewidth = 1,
                  hspace = 0.1)
-
 
 def xy_stack(data_files):
     for i in range(len(data_files)):
@@ -159,7 +214,7 @@ def xy_overview_stack_echem(d_data, d_plot, output_paths):
         base_voltage = 0.1
     elif 0.5 < voltage_range <= 1:
         base_voltage = 0.2
-    elif 1 < d_plot["voltage_max"] <= 3:
+    elif 1 < voltage_range <= 3:
         base_voltage = 0.5
     else:
         base_voltage = 1
@@ -253,10 +308,10 @@ def xy_overview_stack_echem(d_data, d_plot, output_paths):
     ax2.set_ylim(d_plot["voltage_min"], d_plot["voltage_max"])
     ax2.set_xlabel(d_plot["timelabel"], fontsize=d_plot["fontsize_labels"])
     ax2.set_ylabel(d_plot["voltagelabel"], fontsize=d_plot["fontsize_labels"])
-    ax2.xaxis.set_major_locator(ticker.MultipleLocator(base_scan_lower))
-    ax2.xaxis.set_minor_locator(ticker.MultipleLocator(base_scan_lower / d_plot["minor_tick_index_echem"]))
-    ax2.yaxis.set_major_locator(ticker.MultipleLocator(base_scatt_lower))
-    ax2.yaxis.set_minor_locator(ticker.MultipleLocator(base_scatt_lower / d_plot["minor_tick_index_echem"]))
+    ax2.xaxis.set_major_locator(ticker.MultipleLocator(base_time))
+    ax2.xaxis.set_minor_locator(ticker.MultipleLocator(base_time / d_plot["minor_tick_index_echem"]))
+    ax2.yaxis.set_major_locator(ticker.MultipleLocator(base_voltage))
+    ax2.yaxis.set_minor_locator(ticker.MultipleLocator(base_voltage / d_plot["minor_tick_index_echem"]))
     for p in output_paths:
         plt.savefig(p / f"xy_overview_stack_echem.{p.name}",
                     bbox_inches="tight")

@@ -144,7 +144,7 @@ def xy_overview_stack_echem(d_data, d_plot, output_paths):
         base_voltage = 0.1
     elif 0.5 < voltage_range <= 1:
         base_voltage = 0.2
-    elif 1 < d_plot["voltage_max"] <= 3:
+    elif 1 < d_plot["voltage_max"] <= 4:
         base_voltage = 0.5
     else:
         base_voltage = 1
@@ -238,10 +238,10 @@ def xy_overview_stack_echem(d_data, d_plot, output_paths):
     ax2.set_ylim(d_plot["voltage_min"], d_plot["voltage_max"])
     ax2.set_xlabel(d_plot["timelabel"], fontsize=d_plot["fontsize_labels"])
     ax2.set_ylabel(d_plot["voltagelabel"], fontsize=d_plot["fontsize_labels"])
-    ax2.xaxis.set_major_locator(ticker.MultipleLocator(base_scan_lower))
-    ax2.xaxis.set_minor_locator(ticker.MultipleLocator(base_scan_lower / d_plot["minor_tick_index_echem"]))
-    ax2.yaxis.set_major_locator(ticker.MultipleLocator(base_scatt_lower))
-    ax2.yaxis.set_minor_locator(ticker.MultipleLocator(base_scatt_lower / d_plot["minor_tick_index_echem"]))
+    ax2.xaxis.set_major_locator(ticker.MultipleLocator(base_time))
+    ax2.xaxis.set_minor_locator(ticker.MultipleLocator(base_time / d_plot["minor_tick_index_echem"]))
+    ax2.yaxis.set_major_locator(ticker.MultipleLocator(base_voltage))
+    ax2.yaxis.set_minor_locator(ticker.MultipleLocator(base_voltage / d_plot["minor_tick_index_echem"]))
     for p in output_paths:
         plt.savefig(p / f"xy_overview_stack_echem.{p.name}",
                     bbox_inches="tight")
