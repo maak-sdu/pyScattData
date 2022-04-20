@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 # Plot-specific inputs
-DPI = 300
+DPI = 600
 FIGSIZE = (8,4)
 AXESLABEL = 'Scan Number'
 CBARLABEL = r'$r_{\mathrm{Pearson}}$'
@@ -90,7 +90,7 @@ def pearson_correlation(data_ext):
     if len(missing_scans) > 0:
         print(f"\nMissing scan(s) {missing_scans}. Consider including 'blank' "
                "scan(s) with this(these) scan number(s).\n")
-    startscan, endscan = scanlist[0], scanlist[-1]
+    startscan, endscan = scanlist[0] - 1, scanlist[-1]
     x_list = [data_dict[k]['x'] for k in data_dict]
     y_list = [data_dict[k]['y'] for k in data_dict]
     y_list = np.array(y_list)
@@ -104,10 +104,12 @@ def pearson_correlation(data_ext):
     corr_matrix_txt = np.vstack((np.array(['']).astype(str), header_columns))
     for i in range(np.shape(corr_matrix_header)[1]):
         corr_matrix_txt = np.column_stack((corr_matrix_txt, corr_matrix_header[:,i]))
+    print(f"{80*'-'}\nSaving txt file containing matrix to the 'txt' folder...")
     np.savetxt(f'txt/{filename}correalation_matrix_x={xmin}-{xmax}.txt',
                corr_matrix_txt,
                fmt='%s',
                delimiter='\t')
+    print(f"{80*'-'}\nPlotting...\n\tcorrelation matrix on absolute scale...")
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     im = ax.imshow(corr_matrix,
                    cmap=CMAP,
@@ -123,7 +125,7 @@ def pearson_correlation(data_ext):
     ax.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.xaxis.set_label_position('top')
-    ax.tick_params(axis='x', rotation=90)
+    # ax.tick_params(axis='x', rotation=90)
     ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     cbar = ax.figure.colorbar(im, ax=ax, format='%.2f')
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
@@ -131,7 +133,10 @@ def pearson_correlation(data_ext):
                 bbox_inches='tight')
     plt.savefig(f'pdf/{filename}correlation_matrix_rel_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
+    plt.savefig(f'svg/{filename}correlation_matrix_rel_x={xmin}-{xmax}.svg',
+                bbox_inches='tight')
     plt.close()
+    print("\tcorrelation matrix on relative scale...")
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     im = ax.imshow(corr_matrix,
                    cmap=CMAP,
@@ -146,7 +151,7 @@ def pearson_correlation(data_ext):
     ax.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.xaxis.set_label_position('top')
-    ax.tick_params(axis='x', rotation=90)
+    # ax.tick_params(axis='x', rotation=90)
     ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     cbar = ax.figure.colorbar(im, ax=ax, format='%.2f')
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
@@ -154,11 +159,13 @@ def pearson_correlation(data_ext):
                 bbox_inches='tight')
     plt.savefig(f'pdf/{filename}correlation_matrix_abs_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
+    plt.savefig(f'svg/{filename}correlation_matrix_abs_x={xmin}-{xmax}.svg',
+                bbox_inches='tight')
     plt.close()
     print(f"\nPearson correlation analysis completed.\n{80*'-'}\nFigures of "
           f"the Pearson correlation matrix have been saved to the pdf and png "
-          f"folders.\nA textfile with the correlation matrix has been saved to "
-          f"the txt folder.\n{80*'-'}")
+          f"\nfolders. A .txt file with the correlation matrix has been saved "
+          f"to the txt folder.\n{80*'-'}")
 
     return corr_matrix, scanlist, filename, xmin, xmax
 
@@ -231,6 +238,7 @@ def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
     plt.savefig(f"png/{filename}echem.png", bbox_inches="tight")
     plt.savefig(f"pdf/{filename}echem.pdf", bbox_inches="tight")
+    plt.savefig(f"svg/{filename}echem.svg", bbox_inches="tight")
     plt.close()
     print(f"Plot with electrochemistry saved to the 'pdf' and 'png' folders.\
             \n{80*'-'}")
@@ -241,8 +249,9 @@ def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
 def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
                           voltage_min, voltage_max, xmin, xmax,
                           ylabel_echem, heightratio, shrink):
-    print("Plotting correlation matrix and electrochemistry together...")
-    startscan, endscan = scanlist[0], scanlist[-1]
+    startscan, endscan = scanlist[0] - 1, scanlist[-1]
+    print("Plotting correlation matrix and electrochemistry together..."
+          "\n\ton absolute scale")
     fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
                             gridspec_kw={'height_ratios': heightratio,
                                          # 'width_ratios': [1, 0.1]
@@ -261,7 +270,7 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
     axs[0].set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     axs[0].set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     axs[0].xaxis.set_label_position('top')
-    axs[0].tick_params(axis='x', rotation=90)
+    # axs[0].tick_params(axis='x', rotation=90)
     axs[0].tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     # cbar = axs[0].figure.colorbar(im, ax=axs, format='%.2f')
     axs[1].plot(time, voltage, c=COLORS[1])
@@ -281,7 +290,10 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
                 bbox_inches='tight')
     plt.savefig(f'pdf/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
+    plt.savefig(f'svg/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.svg',
+                bbox_inches='tight')
     plt.close()
+    print("\ton relative scale")
     fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
                             gridspec_kw={'height_ratios': heightratio,
                                          # 'width_ratios': [1, 0.1]
@@ -300,7 +312,7 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
     axs[0].set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     axs[0].set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     axs[0].xaxis.set_label_position('top')
-    axs[0].tick_params(axis='x', rotation=90)
+    # axs[0].tick_params(axis='x', rotation=90)
     axs[0].tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     axs[1].plot(time, voltage, c=COLORS[1])
     axs[1].set_xlim(np.amin(time), np.amax(time))
@@ -319,6 +331,8 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
                 bbox_inches='tight')
     plt.savefig(f'pdf/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
+    plt.savefig(f'svg/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.svg',
+                bbox_inches='tight')
     plt.close()
     print(f"Plots with correlation matrix and electrochemistry together have "
           f"been saved to\nthe 'pdf'and 'png' folders.\n{80*'-'}")
@@ -329,8 +343,9 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
 def main():
     png_path = Path.cwd() / 'png'
     pdf_path = Path.cwd() / 'pdf'
+    svg_path = Path.cwd() / "svg"
     txt_path = Path.cwd() / 'txt'
-    PATHS = [png_path, pdf_path, txt_path]
+    PATHS = [png_path, pdf_path, svg_path, txt_path]
     for path in PATHS:
         if not path.exists():
             path.mkdir()
