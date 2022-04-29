@@ -173,6 +173,6 @@ xy_stackplot/example/gr/pdf
 xy_stackplot/example/gr/png
 xy_stackplot/example/gr/svg
 
-# xy_stack_echem
-xy_stack_echem/example/tio2_rutile/pdf
-xy_stack_echem/example/tio2_rutile/png
+# xy_stackplot_echem
+xy_stackplot_echem/example/tio2_rutile/pdf
+xy_stackplot_echem/example/tio2_rutile/png
