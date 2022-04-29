@@ -16,9 +16,11 @@ ECHEMLABEL_DICT = {"V_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
                     }
 DPI = 600
 FIGSIZE = (8,6)
+FONTSIZE_LABELS = 20
+FONTSIZE_TICKS = 16
 XLABEL_COMPS = r"$r$ $[\mathrm{\AA}]$"
 YLABEL_COMPS = r"$G$ $[\mathrm{\AA}^{-2}]$"
-XLABEL_PHASERATIO = "Scan number"
+XLABEL_PHASERATIO = "Scan Number"
 YLABEL_PHASERATIO = "Weight"
 XLABEL_RECON = "Number of components"
 YLABEL_RECON = "RE"
@@ -44,7 +46,16 @@ DISCHARGE_CHANGE = 5.75
 DISCHARGE_END = 11.82444444
 CHARGE_CHANGE = 15.25
 CHARGE_END = 19.84888889
-VLINES_NMF = [12, 23.5, 30, 38.75]
+# VLINES_NMF = [12, 23.5, 30, 38.75]
+# VLINES_NMF = [11, 22, 28, 37]
+
+ECHEM_END = 22.26416667
+SCAN_END = 42.25
+VLINES_NMF = [(DISCHARGE_CHANGE / ECHEM_END) * SCAN_END,
+              (DISCHARGE_END / ECHEM_END) * SCAN_END,
+              (CHARGE_CHANGE / ECHEM_END) * SCAN_END,
+              (CHARGE_END / ECHEM_END) * SCAN_END,
+              ]
 VLINES_ECHEM = [DISCHARGE_CHANGE, DISCHARGE_END, CHARGE_CHANGE, CHARGE_END]
 
 
@@ -283,9 +294,14 @@ def phase_echem_plotter(scans, phasenames, phaseratios, time, voltage):
     plt.style.use(bg_mpl_style)
     for i in range(len(phasenames)):
         axs[0].plot(scans, phaseratios[i], label=phasenames[i], marker="o")
-    axs[0].set_xlabel(XLABEL_PHASERATIO)#, fontsize=FONTSIZE)
-    axs[0].set_ylabel(YLABEL_PHASERATIO)#, fontsize=FONTSIZE)
-    axs[0].tick_params(axis="x", top="True", bottom="True", labeltop=True, labelbottom=False)
+    axs[0].set_xlabel(XLABEL_PHASERATIO, fontsize=FONTSIZE_LABELS)
+    axs[0].set_ylabel(YLABEL_PHASERATIO, fontsize=FONTSIZE_LABELS)
+    axs[0].tick_params(axis="x",
+                       top="True",
+                       bottom="True",
+                       labeltop=True,
+                       labelbottom=False)
+    axs[0].tick_params(axis="both", labelsize=FONTSIZE_TICKS)
     axs[0].xaxis.set_label_position("top")
     axs[0].set_xlim(np.amin(scans), np.amax(scans))
     fig.legend(phasenames, loc='upper center', ncol=len(phasenames), borderaxespad=-0.2,
@@ -293,14 +309,13 @@ def phase_echem_plotter(scans, phasenames, phaseratios, time, voltage):
     for vline in VLINES_NMF:
         axs[0].axvline(x=vline, ls="--", c="k", lw=2)
     axs[1].plot(time, voltage)
-    axs[1].set_xlabel(XLABEL_ECHEM)#, fontsize=FONTSIZE)
-    axs[1].set_ylabel(YLABEL_ECHEM)#, fontsize=FONTSIZE)
+    axs[1].set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    axs[1].set_ylabel(YLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
     for vline in VLINES_ECHEM:
         axs[1].axvline(x=vline, ls="--", c="k", lw=2)
     axs[1].set_xlim(np.amin(time), np.amax(time))
     axs[1].set_ylim(VOLTAGE_MIN, VOLTAGE_MAX)
-    # plt.show()
-    plt.subplots_adjust(hspace=0.1)
+    axs[1].tick_params(axis="both", labelsize=FONTSIZE_TICKS)
     plt.savefig("png/phaseratio_echem.png", bbox_inches="tight")
     plt.savefig("pdf/phaseratio_echem.pdf", bbox_inches="tight")
     plt.savefig("svg/phaseratio_echem.svg", bbox_inches="tight")
