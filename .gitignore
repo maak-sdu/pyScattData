@@ -61,6 +61,11 @@ h5_merge_all_write_plot/example/pdf
 h5_merge_all_write_plot/example/png
 h5_merge_all_write_plot/example/xy
 
+# iq_fq_gr_stackplots
+iq_fq_gr_stackplots/example/pdf
+iq_fq_gr_stackplots/example/png
+iq_fq_gr_stackplots/example/svg
+
 # iq_sq_fq_gr_plot
 iq_sq_fq_gr_plot/example/pdf
 iq_sq_fq_gr_plot/example/png
@@ -159,3 +164,14 @@ xy_overview_stack_echem/example/gr_gr/svg
 xy_overview_stack_echem/example/iq_fq/pdf
 xy_overview_stack_echem/example/iq_fq/png
 xy_overview_stack_echem/example/iq_fq/svg
+
+# xy_stackplot
+xy_stackplot/example/fq/pdf
+xy_stackplot/example/fq/png
+xy_stackplot/example/fq/svg
+xy_stackplot/example/iq/pdf
+xy_stackplot/example/iq/png
+xy_stackplot/example/iq/svg
+xy_stackplot/example/gr/pdf
+xy_stackplot/example/gr/png
+xy_stackplot/example/gr/svg
