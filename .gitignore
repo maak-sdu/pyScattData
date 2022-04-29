@@ -115,10 +115,6 @@ scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/pdf
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/png
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/wl_sdd.txt
 
-# waterfall_echem
-waterfall_echem/example/tio2_rutile/pdf
-waterfall_echem/example/tio2_rutile/png
-
 # xy_overview
 xy_overview/example/fq/pdf
 xy_overview/example/fq/png
@@ -176,3 +172,7 @@ xy_stackplot/example/iq/svg
 xy_stackplot/example/gr/pdf
 xy_stackplot/example/gr/png
 xy_stackplot/example/gr/svg
+
+# xy_stack_echem
+xy_stack_echem/example/tio2_rutile/pdf
+xy_stack_echem/example/tio2_rutile/png
