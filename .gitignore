@@ -116,7 +116,8 @@ scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/png
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/wl_sdd.txt
 
 # waterfall_echem
-waterfall_echem
+waterfall_echem/example/tio2_rutile/pdf
+waterfall_echem/example/tio2_rutile/png
 
 # xy_overview
 xy_overview/example/fq/pdf
