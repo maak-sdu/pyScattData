@@ -25,6 +25,20 @@ cif_pxrd_calculate/example/txt
 csv_1d_to_2d/example/SeqRR_results_NE/
 csv_1d_to_2d/example/delimiter_fix/
 
+# diffpy-cmi_fit_res_stackplot
+diffpy-cmi_fit_res_stackplot/example/1x1/pdf
+diffpy-cmi_fit_res_stackplot/example/1x1/png
+diffpy-cmi_fit_res_stackplot/example/1x1/svg
+diffpy-cmi_fit_res_stackplot/example/1x2/pdf
+diffpy-cmi_fit_res_stackplot/example/1x2/png
+diffpy-cmi_fit_res_stackplot/example/1x2/svg
+diffpy-cmi_fit_res_stackplot/example/1x4/pdf
+diffpy-cmi_fit_res_stackplot/example/1x4/png
+diffpy-cmi_fit_res_stackplot/example/1x4/svg
+diffpy-cmi_fit_res_stackplot/example/1x6/pdf
+diffpy-cmi_fit_res_stackplot/example/1x6/png
+diffpy-cmi_fit_res_stackplot/example/1x6/svg
+
 # diffraction_plot
 diffraction_plot/example/pdf
 diffraction_plot/example/png
@@ -142,3 +156,6 @@ xy_overview_stack_echem/example/fq_gr/svg
 xy_overview_stack_echem/example/gr_gr/pdf
 xy_overview_stack_echem/example/gr_gr/png
 xy_overview_stack_echem/example/gr_gr/svg
+xy_overview_stack_echem/example/iq_fq/pdf
+xy_overview_stack_echem/example/iq_fq/png
+xy_overview_stack_echem/example/iq_fq/svg
