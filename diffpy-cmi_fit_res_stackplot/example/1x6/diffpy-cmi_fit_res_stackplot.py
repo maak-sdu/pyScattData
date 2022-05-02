@@ -22,7 +22,12 @@ GLABEL = r"$G$ $[\mathrm{\AA}^{-2}]$"
 GOBSLABEL = r"$G_{\mathrm{obs}}$"
 GCALCLABEL = r"$G_{\mathrm{calc}}$"
 GDIFFLABEL = r"$G_{\mathrm{diff}}$"
-SAMPLELABELS = ["3 nm", "5 nm", "7 nm", "3 nm (Li)", "5 nm (Li)", "7 nm (Li)"]
+SAMPLELABELS = ["3 nm, pristine",
+                "5 nm, pristine",
+                "7 nm, pristine",
+                "3 nm, chemically lithiated",
+                "5 nm, chemically lithiated",
+                "7 nm, chemically lithiated"]
 LINEWIDTH = 1
 LINEWIDTH_LEGEND = 2
 SCATTERSIZE = 1
