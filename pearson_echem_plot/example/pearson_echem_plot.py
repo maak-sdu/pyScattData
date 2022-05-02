@@ -5,6 +5,12 @@ import numpy as np
 from diffpy.utils.parsers.loaddata import loadData
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from matplotlib.gridspec import GridSpec
+try:
+    from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
+    PLOT_STYLE = "found"
+except ModuleNotFoundError:
+    PLOT_STYLE = None
 
 # Plot-specific inputs
 DPI = 600
@@ -17,6 +23,37 @@ FONTSIZE_TICKS = 14
 FONTSIZE_LABELS = 20
 CMAP = 'YlOrRd'
 
+
+# CBAR_REL_DICT = dict(
+                     # r = 1-10 Å
+                     # vmin = 0.85,
+                     # decimals = 3,
+                     # ticks = np.linspace(0.85, 1.0, int((1.0-0.85)/0.025)+1)
+                     # r = 10-20 Å
+                     # vmin = 0.5,
+                     # decimals = 1,
+                     # ticks = np.linspace(0.5, 1.0, int((1.0-0.5)/0.1)+1)
+                     # r = 20-30 Å
+                     # vmin = 0.65,
+                     # decimals = 2,
+                     # ticks = np.linspace(0.65, 1.0, int((1.0-0.65)/0.05)+2)
+                     # r = 1-15 Å
+                     # vmin = 0.825,
+                     # decimals = 3,
+                     # ticks = np.linspace(0.825, 1.0, int((1.0-0.825)/0.025)+1)
+                     # r = 10-25 Å
+                     # vmin = 0.5,
+                     # decimals = 1,
+                     # ticks = np.linspace(0.5, 1.0, int((1.0-0.5)/0.1)+1)
+                     # r = 1-30 Å
+                    #  vmin = 0.825,
+                    #  decimals = 3,
+                    #  ticks = np.linspace(0.825, 1, int((1-0.825)/0.025)+1)
+                    # )
+# print(CBAR_REL_DICT["ticks"])
+# sys.exit()
+CBAR_REL_DICT = None
+
 XLABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
 
 SHRINK_V_LABEL = 0.76
@@ -25,7 +62,6 @@ SHRINK_LI_LABEL = 0.68
 HEIGHTRATIO_LI_LABEL = 0.4
 SHRINK_NA_LABEL = 0.635
 HEIGHTRATIO_NA_LABEL = 0.5
-
 
 TICKINDEX_MAJOR_ECHEM_X = 5
 TICKINDEX_MINOR_ECHEM_X = 1
@@ -113,25 +149,43 @@ def pearson_correlation(data_ext):
                corr_matrix_txt,
                fmt='%s',
                delimiter='\t')
-    print(f"{80*'-'}\nPlotting...\n\tcorrelation matrix on absolute scale...")
+    print(f"{80*'-'}\nPlotting...\n\tcorrelation matrix on relative scale...")
+    if not isinstance(PLOT_STYLE, type(None)):
+        plt.style.use(bg_mpl_style)
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
-    im = ax.imshow(corr_matrix,
-                   cmap=CMAP,
-                   extent=(startscan, endscan, endscan, startscan),
-                   aspect="equal",
-                   )
+    if not isinstance(CBAR_REL_DICT, type(None)):
+        im = ax.imshow(corr_matrix,
+                       cmap=CMAP,
+                       extent=(startscan, endscan, endscan, startscan),
+                       aspect="equal",
+                       vmin=CBAR_REL_DICT["vmin"],
+                       vmax=1,
+                       )
+    else:
+        im = ax.imshow(corr_matrix,
+                       cmap=CMAP,
+                       extent=(startscan, endscan, endscan, startscan),
+                       aspect="equal",
+                       )
     ax.grid(False)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
     ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    ax.xaxis.tick_top()
+    # ax.xaxis.tick_top()
     ax.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.xaxis.set_label_position('top')
-    # ax.tick_params(axis='x', rotation=90)
     ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    cbar = ax.figure.colorbar(im, ax=ax, format='%.2f')
+    ax.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
+                   labeltop=True)
+    if not isinstance(CBAR_REL_DICT, type(None)):
+        cbar = ax.figure.colorbar(im,
+                                  ax=ax,
+                                  format=f'%.{CBAR_REL_DICT["decimals"]}f',
+                                  ticks=CBAR_REL_DICT["ticks"])
+    else:
+        cbar = ax.figure.colorbar(im, ax=ax)
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
     plt.savefig(f'png/{filename}correlation_matrix_rel_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
@@ -140,7 +194,7 @@ def pearson_correlation(data_ext):
     plt.savefig(f'svg/{filename}correlation_matrix_rel_x={xmin}-{xmax}.svg',
                 bbox_inches='tight')
     plt.close()
-    print("\tcorrelation matrix on relative scale...")
+    print("\tcorrelation matrix on absolute scale...")
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     im = ax.imshow(corr_matrix,
                    cmap=CMAP,
@@ -151,13 +205,14 @@ def pearson_correlation(data_ext):
     ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    ax.xaxis.tick_top()
+    # ax.xaxis.tick_top()
     ax.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.xaxis.set_label_position('top')
-    # ax.tick_params(axis='x', rotation=90)
     ax.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    cbar = ax.figure.colorbar(im, ax=ax, format='%.2f')
+    ax.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
+                   labeltop=True)
+    cbar = ax.figure.colorbar(im, ax=ax, format='%.1f')
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
     plt.savefig(f'png/{filename}correlation_matrix_abs_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
@@ -229,6 +284,8 @@ def echem_collector(echemfile):
 def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
                   ylabel_echem):
     print(f"{80*'-'}\nPlotting electrochemistry...")
+    if not isinstance(PLOT_STYLE, type(None)):
+        plt.style.use(bg_mpl_style)
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     plt.plot(time, voltage, c=COLORS[1])
     plt.xlim(np.amin(time), np.amax(time))
@@ -256,39 +313,57 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
     startscan, endscan = scanlist[0] - 1, scanlist[-1]
     print("Plotting correlation matrix and electrochemistry together..."
           "\n\ton absolute scale")
-    fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
-                            gridspec_kw={'height_ratios': heightratio,
-                                         # 'width_ratios': [1, 0.1]
-                                         }
-                            )
-    im = axs[0].imshow(corr_matrix, cmap=CMAP, vmin=0, vmax=1,
-                       extent=(startscan, endscan, endscan, startscan),
-                       aspect="auto",
-                       )
-    axs[0].grid(False)
-    axs[0].xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    axs[0].xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    axs[0].yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    axs[0].yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    axs[0].xaxis.tick_top()
-    axs[0].set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
-    axs[0].set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
-    axs[0].xaxis.set_label_position('top')
-    # axs[0].tick_params(axis='x', rotation=90)
-    axs[0].tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    # cbar = axs[0].figure.colorbar(im, ax=axs, format='%.2f')
-    axs[1].plot(time, voltage, c=COLORS[1])
-    axs[1].set_xlim(np.amin(time), np.amax(time))
-    axs[1].set_ylim(voltage_min, voltage_max)
-    axs[1].set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
-    axs[1].set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
-    axs[1].tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    axs[1].xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
-    axs[1].xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
-    axs[1].yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_Y))
-    axs[1].yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
-    plt.subplots_adjust(hspace=0.1)
-    cbar = plt.colorbar(im, ax=axs, anchor=(0,1), shrink=shrink)
+    if not isinstance(PLOT_STYLE, type(None)):
+        plt.style.use(bg_mpl_style)
+    fig = plt.figure(dpi=DPI, figsize=(6,6))
+    # fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
+    #                         gridspec_kw={'height_ratios': heightratio,
+    #                                      # 'width_ratios': [1, 0.1]
+    #                                      }
+    #                         )
+    gs = GridSpec(nrows=2,
+                  ncols=3,
+                  figure=fig,
+                  width_ratios=[0.0965, 1, 0.209],
+                  height_ratios=heightratio,
+                  hspace=0.1)
+    ax0 = fig.add_subplot(gs[0,:])
+    ax1 = fig.add_subplot(gs[1,1])
+    im = ax0.imshow(corr_matrix,
+                    cmap=CMAP,
+                    vmin=0,
+                    vmax=1,
+                    extent=(startscan, endscan, endscan, startscan),
+                    aspect="equal",
+                    )
+    ax0.grid(False)
+    ax0.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
+    ax0.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
+    ax0.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
+    ax0.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
+    ax0.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
+    ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
+    ax0.xaxis.set_label_position('top')
+    ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
+    ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
+                       labeltop=True)
+    ax1.plot(time, voltage, c=COLORS[1])
+    ax1.set_xlim(np.amin(time), np.amax(time))
+    ax1.set_ylim(voltage_min, voltage_max)
+    ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
+    ax1.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
+    ax1.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
+    ax1.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
+    ax1.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_Y))
+    ax1.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
+    # plt.subplots_adjust(hspace=0.1)
+    cbar = plt.colorbar(im,
+                        ax=ax0,
+                        anchor=(0,1),
+                        # shrink=shrink,
+                        # format='%.1f'
+                        )
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
     plt.savefig(f'png/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
@@ -298,38 +373,70 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
                 bbox_inches='tight')
     plt.close()
     print("\ton relative scale")
-    fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
-                            gridspec_kw={'height_ratios': heightratio,
-                                         # 'width_ratios': [1, 0.1]
-                                         }
-                            )
-    im = axs[0].imshow(corr_matrix, cmap=CMAP,
+    fig = plt.figure(dpi=DPI, figsize=(6,6))
+    # fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
+    #                         gridspec_kw={'height_ratios': heightratio,
+    #                                      # 'width_ratios': [1, 0.1]
+    #                                      }
+    #                         )
+    gs = GridSpec(nrows=2,
+                  ncols=3,
+                  figure=fig,
+                  width_ratios=[0.0965, 1, 0.209],
+                  height_ratios=heightratio,
+                  hspace=0.1)
+    ax0 = fig.add_subplot(gs[0,:])
+    ax1 = fig.add_subplot(gs[1,1])
+    if not isinstance(CBAR_REL_DICT, type(None)):
+        im = ax0.imshow(corr_matrix,
+                       cmap=CMAP,
                        extent=(startscan, endscan, endscan, startscan),
-                       aspect="auto",
+                       aspect="equal",
+                       vmin=CBAR_REL_DICT["vmin"],
+                       vmax=1,
                        )
-    axs[0].grid(False)
-    axs[0].xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    axs[0].xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    axs[0].yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    axs[0].yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    axs[0].xaxis.tick_top()
-    axs[0].set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
-    axs[0].set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
-    axs[0].xaxis.set_label_position('top')
-    # axs[0].tick_params(axis='x', rotation=90)
-    axs[0].tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    axs[1].plot(time, voltage, c=COLORS[1])
-    axs[1].set_xlim(np.amin(time), np.amax(time))
-    axs[1].set_ylim(voltage_min, voltage_max)
-    axs[1].set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
-    axs[1].set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
-    axs[1].tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    axs[1].xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
-    axs[1].xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
-    axs[1].yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_Y))
-    axs[1].yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
-    plt.subplots_adjust(hspace=0.1)
-    cbar = plt.colorbar(im, ax=axs, anchor=(0,1), shrink=shrink)
+    else:
+        im = ax0.imshow(corr_matrix,
+                       cmap=CMAP,
+                       extent=(startscan, endscan, endscan, startscan),
+                       aspect="equal",
+                       )
+    ax0.grid(False)
+    ax0.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
+    ax0.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
+    ax0.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
+    ax0.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
+    ax0.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
+    ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
+    ax0.xaxis.set_label_position('top')
+    ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
+    ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
+                       labeltop=True)
+    ax1.plot(time, voltage, c=COLORS[1])
+    ax1.set_xlim(np.amin(time), np.amax(time))
+    ax1.set_ylim(voltage_min, voltage_max)
+    ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
+    ax1.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
+    ax1.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
+    ax1.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
+    ax1.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_Y))
+    ax1.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
+    # plt.subplots_adjust(hspace=0.1
+    if not isinstance(CBAR_REL_DICT, type(None)):
+        cbar = plt.colorbar(im,
+                            ax=ax0,
+                            anchor=(0,1),
+                            # shrink=shrink,
+                            format=f'%.{CBAR_REL_DICT["decimals"]}f',
+                            ticks=CBAR_REL_DICT["ticks"])
+    else:
+        cbar = plt.colorbar(im,
+                            ax=ax0,
+                            anchor=(0,1),
+                            # shrink=shrink,
+                            # format='%.3f'
+                            )
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
     plt.savefig(f'png/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
