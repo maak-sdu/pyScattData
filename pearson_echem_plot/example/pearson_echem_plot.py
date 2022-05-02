@@ -290,6 +290,7 @@ def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
     plt.plot(time, voltage, c=COLORS[1])
     plt.xlim(np.amin(time), np.amax(time))
     plt.ylim(voltage_min, voltage_max)
+    ylabel_echem = ylabel_echem.replace("\n", " ")
     plt.xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
     plt.ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax.tick_params(axis="both", labelsize=FONTSIZE_TICKS)
