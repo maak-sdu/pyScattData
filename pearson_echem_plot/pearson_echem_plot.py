@@ -70,17 +70,21 @@ def pearson_correlation(data_ext):
         with open(f) as input_file:
             data = loadData(str(f))
         x_data, y_data = data[:,0], data[:,1]
+        xmin_index, xmax_index = 0, len(x_data) - 1
         for i in range(len(x_data)):
-            if x_data[i] <= xmin:
+            if x_data[i] >= xmin:
                 xmin_index = i
-            else:
-                xmin_index = 0
-            if x_data[i] <= xmax:
+                break
+        for i in range(len(x_data)):
+            if x_data[i] >= xmax:
                 xmax_index = i
-            else:
-                xmax_index = len(x_data)-1
-        data_dict[scan] = dict(x = x_data[xmin_index:xmax_index+1],
-                               y = y_data[xmin_index:xmax_index+1])
+                break
+        if xmax_index == len(x_data) - 1:
+            data_dict[scan] = dict(x = x_data[xmin_index::],
+                                   y = y_data[xmin_index::])
+        else:
+            data_dict[scan] = dict(x = x_data[xmin_index:xmax_index+1],
+                                   y = y_data[xmin_index:xmax_index+1])
     scanlist = list(data_dict.keys())
     missing_scans = []
     for i in range(1, len(scanlist)):
