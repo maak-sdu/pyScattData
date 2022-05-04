@@ -24,7 +24,7 @@ FONTSIZE_LABELS = 20
 CMAP = 'YlOrRd'
 
 
-# CBAR_REL_DICT = dict(
+CBAR_REL_DICT = dict(
                      # r = 1-10 Å
                      # vmin = 0.85,
                      # decimals = 3,
@@ -46,13 +46,13 @@ CMAP = 'YlOrRd'
                      # decimals = 1,
                      # ticks = np.linspace(0.5, 1.0, int((1.0-0.5)/0.1)+1)
                      # r = 1-30 Å
-                    #  vmin = 0.825,
-                    #  decimals = 3,
-                    #  ticks = np.linspace(0.825, 1, int((1-0.825)/0.025)+1)
-                    # )
+                     vmin = 0.825,
+                     decimals = 3,
+                     ticks = np.linspace(0.825, 1, int((1-0.825)/0.025)+1)
+                    )
 # print(CBAR_REL_DICT["ticks"])
 # sys.exit()
-CBAR_REL_DICT = None
+# CBAR_REL_DICT = None
 
 XLABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
 
