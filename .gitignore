@@ -162,6 +162,11 @@ xy_overview_stack_echem/example/iq_fq/pdf
 xy_overview_stack_echem/example/iq_fq/png
 xy_overview_stack_echem/example/iq_fq/svg
 
+# xy_overview_echem_t_x_v
+xy_overview_echem_t_x_v/example/pdf
+xy_overview_echem_t_x_v/example/png
+xy_overview_echem_t_x_v/example/svg
+
 # xy_stackplot
 xy_stackplot/example/fq/pdf
 xy_stackplot/example/fq/png
