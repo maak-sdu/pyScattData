@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import GridSpec
+from matplotlib.colors import LinearSegmentedColormap
 try:
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
     PLOT_STYLE = "found"
@@ -38,6 +39,14 @@ ECHEMLABEL_DICT = {"V_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
                    "Ewe_Na_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
                                        y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Na/Na$^{+} [\mathrm{V}]$")
                     }
+
+MY_GRADIENT = LinearSegmentedColormap.from_list('my_gradient', (
+                 # Edit this gradient at https://eltos.github.io/gradient/#0B3C5D-0B3C5D-FFFFFF-B82601-B82601
+                 (0.000, (0.043, 0.235, 0.365)),
+                 (0.250, (0.200, 0.400, 0.500)),
+                 (0.500, (1.000, 1.000, 1.000)),
+                 (0.750, (0.850, 0.200, 0.100)),
+                 (1.000, (0.722, 0.149, 0.004))))
 PLOT_DICT = dict(dpi = 600,
                  figsize = (8,10),
                  fontsize_labels = 20,
@@ -62,8 +71,8 @@ PLOT_DICT = dict(dpi = 600,
                  minor_tick_index_upper = 5,
                  minor_tick_index_lower = 5,
                  minor_tick_index_echem = 5,
-                 cmap_upper = "seismic",
-                 cmap_lower = "seismic",
+                 cmap_upper = MY_GRADIENT,
+                 cmap_lower = MY_GRADIENT,
                  cbar_ticks_upper = 5,
                  cbar_ticks_lower = 5,
                  color = "k",

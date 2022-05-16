@@ -2,71 +2,16 @@ import sys
 from pathlib import Path
 from diffpy.utils.parsers.loaddata import loadData
 import numpy as np
-import matplotlib
-from mpl_toolkits.axes_grid1 import AxesGrid
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import GridSpec
+from matplotlib.colors import LinearSegmentedColormap
 try:
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
     PLOT_STYLE = "found"
 except ModuleNotFoundError:
     PLOT_STYLE = None
 
-
-def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
-    '''
-    Function to offset the "center" of a colormap. Useful for
-    data with a negative min and positive max and you want the
-    middle of the colormap's dynamic range to be at zero.
-
-    Input
-    -----
-      cmap : The matplotlib colormap to be altered
-      start : Offset from lowest point in the colormap's range.
-          Defaults to 0.0 (no lower offset). Should be between
-          0.0 and `midpoint`.
-      midpoint : The new center of the colormap. Defaults to
-          0.5 (no shift). Should be between 0.0 and 1.0. In
-          general, this should be  1 - vmax / (vmax + abs(vmin))
-          For example if your data range from -15.0 to +5.0 and
-          you want the center of the colormap at 0.0, `midpoint`
-          should be set to  1 - 5/(5 + 15)) or 0.75
-      stop : Offset from highest point in the colormap's range.
-          Defaults to 1.0 (no upper offset). Should be between
-          `midpoint` and 1.0.
-    '''
-    cdict = {
-        'red': [],
-        'green': [],
-        'blue': [],
-        'alpha': []
-    }
-
-    # regular index to compute the colors
-    reg_index = np.linspace(start, stop, 257)
-
-    # shifted index to match the data
-    shift_index = np.hstack([
-        np.linspace(0.0, midpoint, 128, endpoint=False),
-        np.linspace(midpoint, 1.0, 129, endpoint=True)
-    ])
-
-    for ri, si in zip(reg_index, shift_index):
-        r, g, b, a = cmap(ri)
-
-        cdict['red'].append((si, r, r))
-        cdict['green'].append((si, g, g))
-        cdict['blue'].append((si, b, b))
-        cdict['alpha'].append((si, a, a))
-
-    newcmap = matplotlib.colors.LinearSegmentedColormap(name, cdict)
-    plt.register_cmap(cmap=newcmap)
-
-    return newcmap
-
-ORIG_CMAP = matplotlib.cm.seismic
-SHRUNK_CMAP = shiftedColorMap(ORIG_CMAP, start=-0.5, midpoint=0.0, stop=1.0, name='shrunk')
 
 SCATTLABEL_DICT = {"gr": dict(x = r"$r$ $[\mathrm{\AA}]$",
                               y = r"$G$ $[\mathrm{\AA}^{-2}]$"),
@@ -94,38 +39,31 @@ ECHEMLABEL_DICT = {"V_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
                    "Ewe_Na_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
                                        y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Na/Na$^{+} [\mathrm{V}]$")
                     }
-CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
-         5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
-         10: 'YlOrBr', 11:'YlOrRd', 12:'OrRd', 13:'PuRd', 14:'RdPu',
-         15:'BuPu', 16:'GnBu', 17:'PuBu', 18:'YlGnBu', 19:'PuBuGn',
-         20:'BuGn', 21:'YlGn', 22:'binary', 23:'gist_yarg', 24:'gist_gray',
-         25:'gray', 26:'bone', 27:'pink', 28:'spring', 29:'summer',
-         30:'autumn', 31:'winter', 32:'cool', 33:'Wistia', 34:'hot',
-         35:'afmhot', 36:'gist_heat', 37:'copper', 38:'PiYG', 39:'PRGn',
-         40:'BrBG', 41:'PuOr', 42:'RdGy', 43:'RdBu', 44:'RdYlBu',
-         45:'RdYlGn', 46:'Spectral', 47:'coolwarm', 48:'bwr', 49:'seismic',
-         50:'twilight', 51:'twilight_shifted', 52:'hsv', 53:'ocean',
-         54:'gist_earth', 55:'terrain', 56:'gist_stern', 57:'gnuplot',
-         58:'gnuplot2', 59:'CMRmap', 60:'cubehelix', 61:'brg',
-         62:'gist_rainbow', 63:'rainbow', 64:'jet', 65:'turbo',
-         66:'nipy_spectral', 67:'gist_ncar'}
+
+MY_GRADIENT = LinearSegmentedColormap.from_list('my_gradient', (
+                 # Edit this gradient at https://eltos.github.io/gradient/#0B3C5D-0B3C5D-FFFFFF-B82601-B82601
+                 (0.000, (0.043, 0.235, 0.365)),
+                 (0.250, (0.200, 0.400, 0.500)),
+                 (0.500, (1.000, 1.000, 1.000)),
+                 (0.750, (0.850, 0.200, 0.100)),
+                 (1.000, (0.722, 0.149, 0.004))))
 PLOT_DICT = dict(dpi = 600,
                  figsize = (8,10),
                  fontsize_labels = 20,
                  fontsize_ticks = 16,
                  xmin_upper = 1,
                  xmax_upper = 10,
-                 ymin_upper = -0.5,
+                 ymin_upper = -1,
                  ymax_upper = 1,
-                 xmin_lower = 1,
-                 xmax_lower = 10,
-                 ymin_lower = -1,
-                 ymax_lower = 1,
+                 xmin_lower = 10,
+                 xmax_lower = 20,
+                 ymin_lower = -0.25,
+                 ymax_lower = 0.25,
                  voltage_min = 1,
                  voltage_max = 3,
                  indexlabel = "Scan Number",
-                 xlabel_upper = SCATTLABEL_DICT["fq[A^-1]"]["x"],
-                 ylabel_upper = SCATTLABEL_DICT["fq[A^-1]"]["y"],
+                 xlabel_upper = SCATTLABEL_DICT["gr"]["x"],
+                 ylabel_upper = SCATTLABEL_DICT["gr"]["y"],
                  xlabel_lower = SCATTLABEL_DICT["gr"]["x"],
                  ylabel_lower = SCATTLABEL_DICT["gr"]["y"],
                  timelabel = ECHEMLABEL_DICT["Ewe_Li_t[h]"]["x"],
@@ -133,13 +71,14 @@ PLOT_DICT = dict(dpi = 600,
                  minor_tick_index_upper = 5,
                  minor_tick_index_lower = 5,
                  minor_tick_index_echem = 5,
-                 cmap_upper = SHRUNK_CMAP,
-                 cmap_lower = "seismic",
-                 cbar_ticks_upper = 7,
+                 cmap_upper = MY_GRADIENT,
+                 cmap_lower = MY_GRADIENT,
+                 cbar_ticks_upper = 5,
                  cbar_ticks_lower = 5,
                  color = "k",
                  linewidth = 1,
                  hspace = 0.1)
+
 
 def xy_stack(data_files):
     for i in range(len(data_files)):
@@ -214,7 +153,7 @@ def xy_overview_stack_echem(d_data, d_plot, output_paths):
         base_voltage = 0.1
     elif 0.5 < voltage_range <= 1:
         base_voltage = 0.2
-    elif 1 < voltage_range <= 3:
+    elif 1 < d_plot["voltage_max"] <= 4:
         base_voltage = 0.5
     else:
         base_voltage = 1

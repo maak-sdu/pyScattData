@@ -7,12 +7,21 @@ from mpl_toolkits.axes_grid1 import AxesGrid
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import GridSpec
+from matplotlib.colors import LinearSegmentedColormap
 try:
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
     PLOT_STYLE = "found"
 except ModuleNotFoundError:
     PLOT_STYLE = None
 
+
+MY_GRADIENT = LinearSegmentedColormap.from_list('my_gradient', (
+                 # Edit this gradient at https://eltos.github.io/gradient/#0B3C5D-0B3C5D-FFFFFF-B82601-B82601
+                 (0.000, (0.043, 0.235, 0.365)),
+                 (0.250, (0.200, 0.400, 0.500)),
+                 (0.500, (1.000, 1.000, 1.000)),
+                 (0.750, (0.850, 0.200, 0.100)),
+                 (1.000, (0.722, 0.149, 0.004))))
 
 def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
     '''
@@ -77,8 +86,8 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
     return new_cmap
 
 
-ORIG_CMAP = matplotlib.cm.seismic
-TRUNCATE_CMAP_IQ = truncate_colormap(plt.get_cmap("seismic"), 0.5, 1)
+ORIG_CMAP = MY_GRADIENT
+TRUNCATE_CMAP_IQ = truncate_colormap(MY_GRADIENT, 0.5, 1)
 SHRUNK_CMAP_FQ = shiftedColorMap(ORIG_CMAP, start=-0.5, midpoint=0.0, stop=1.0, name='shrunk')
 
 SCATTLABEL_DICT = {"gr": dict(x = r"$r$ $[\mathrm{\AA}]$",
