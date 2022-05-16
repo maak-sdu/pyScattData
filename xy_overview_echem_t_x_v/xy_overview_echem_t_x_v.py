@@ -6,7 +6,7 @@ from scipy.constants import physical_constants
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.gridspec import GridSpec
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap
 try:
     PLOT_STYLE = True
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
@@ -40,11 +40,17 @@ SCATT_XMAX = 10
 SCATT_XLABEL = r"$r$ $[\mathrm{\AA}]$"
 SCATT_YLABEL = r"$G$ $[\mathrm{\AA}^{-2}]$"
 CMAP = "seismic"
-CUSTOM_CMAP = True
+my_gradient = LinearSegmentedColormap.from_list('my_gradient', (
+                 # Edit this gradient at https://eltos.github.io/gradient/#0B3C5D-0B3C5D-FFFFFF-B82601-B82601
+                 (0.000, (0.043, 0.235, 0.365)),
+                 (0.250, (0.200, 0.400, 0.500)),
+                 (0.500, (1.000, 1.000, 1.000)),
+                 (0.750, (0.850, 0.200, 0.100)),
+                 (1.000, (0.722, 0.149, 0.004))))
+CMAP = my_gradient
+CUSTOM_CMAP = False
 RGB_START = (11, 60, 93)
 RGB_END = (184, 38, 1)
-# RGB_START = (6, 33, 51)
-# RGB_END = (128, 27, 1)
 
 CBAR_MIN = -0.8
 CBAR_MAX = 0.8
