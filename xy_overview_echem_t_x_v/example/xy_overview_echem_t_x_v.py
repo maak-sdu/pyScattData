@@ -229,16 +229,21 @@ def scatt_echem_plot(d_echem, scatt_array, output_folders):
                  voltage_min - BREAKFACTOR_Y * voltage_range,
                  "|",
                  rotation=45)
-    ax0 = fig.add_subplot(gs[0,:], sharex=ax11)
+    scan_time = np.array([i * (time_range / (scatt_array.shape[1] - 1))
+                          for i in range(scatt_array.shape[1])])
+    ax0 = fig.add_subplot(gs[0,:],
+                          # sharex=ax11,
+                          )
     im = ax0.imshow(scatt_array,
                     interpolation="nearest",
                     aspect="auto",
                     origin="upper",
                     vmin=CBAR_MIN,
                     vmax=CBAR_MAX,
-                    extent=(0, scatt_array.shape[1], SCATT_XMAX, SCATT_XMIN),
+                    extent=(0, np.amax(scan_time), SCATT_XMAX, SCATT_XMIN),
                     cmap=cmap,
                     )
+    # ax0.set_xlim(0, scatt_array.shape[1])
     ax0.set_xlabel(TIMELABEL, fontsize=FONTSIZE_LABELS)
     ax0.xaxis.set_label_position("top")
     ax0.tick_params(axis="x",
@@ -251,6 +256,8 @@ def scatt_echem_plot(d_echem, scatt_array, output_folders):
     if CBAR_MAX > 100:
         cbar.formatter.set_powerlimits((0, 0))
     cbar.set_label(label=SCATT_YLABEL, size=FONTSIZE_LABELS)
+    ax0.xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME))
+    ax0.xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / 5))    
     ax0.yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_SCATT_X))
     ax0.yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_SCATT_X / 5))
     for f in output_folders:
