@@ -3,14 +3,27 @@ import time
 from pathlib import Path
 import numpy as np
 from diffpy.utils.parsers.loaddata import loadData
+from scipy.constants import physical_constants
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+from matplotlib.ticker import MultipleLocator
 from matplotlib.gridspec import GridSpec
 try:
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
     PLOT_STYLE = "found"
 except ModuleNotFoundError:
     PLOT_STYLE = None
+
+
+# Inputs to load echem
+INDEX_TIME = 0
+INDEX_VOLTAGE = 1
+INDEX_CURRENT = 2
+
+# Inputs to calculate state of charge
+WORKING_ION_CHARGE = 1
+WORKING_ION_START_VALUE = 0
+MOLAR_MASS = 79.866
+MASS = 0.6 * 11.276 * 10**-3
 
 # Plot-specific inputs
 DPI = 600
@@ -19,9 +32,14 @@ AXESLABEL = 'Scan Number'
 CBARLABEL = r'$r_{\mathrm{Pearson}}$'
 TICKINDEX_MAJOR = 10
 TICKINDEX_MINOR = 1
-FONTSIZE_TICKS = 14
-FONTSIZE_LABELS = 20
+FONTSIZE_TICKS = 12
+FONTSIZE_LABELS = 18
 CMAP = 'YlOrRd'
+
+BREAKFACTOR_X = 0.04
+BREAKFACTOR_Y = 0.05
+TOLERANCE_FACTOR = 10**2
+HSPACE = 0.1
 
 
 CBAR_REL_DICT = dict(
@@ -54,19 +72,19 @@ CBAR_REL_DICT = dict(
 # sys.exit()
 # CBAR_REL_DICT = None
 
-XLABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
+TIMELABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
+XLABEL_ECHEM = r"$x$ in Li$_{x}$TiO$_{2}$"
 
-SHRINK_V_LABEL = 0.76
 HEIGHTRATIO_V_LABEL = 0.25
-SHRINK_LI_LABEL = 0.68
 HEIGHTRATIO_LI_LABEL = 0.4
-SHRINK_NA_LABEL = 0.635
 HEIGHTRATIO_NA_LABEL = 0.5
 
-TICKINDEX_MAJOR_ECHEM_X = 5
-TICKINDEX_MINOR_ECHEM_X = 1
-TICKINDEX_MAJOR_ECHEM_Y = 0.5
-TICKINDEX_MINOR_ECHEM_Y = 0.1
+TICKINDEX_MAJOR_ECHEM_TIME = 5
+TICKINDEX_MINOR_ECHEM_TIME = 1
+TICKINDEX_MAJOR_ECHEM_X = 0.2
+TICKINDEX_MINOR_ECHEM_X = 0.2 / 5
+TICKINDEX_MAJOR_ECHEM_VOLTAGE = 0.5
+TICKINDEX_MINOR_ECHEM_VOLTAGE = 0.1
 
 COLORS = ['#0B3C5D', '#B82601', '#1c6b0a', '#328CC1',
           '#a8b6c1', '#D9B310', '#984B43', '#76323F',
@@ -90,23 +108,56 @@ CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
          66:'nipy_spectral', 67:'gist_ncar'}
 
 
-def pearson_correlation(data_ext):
-    xmin = float(input("\tPlease provide the minimum x-value to include for "
-                       "each data file: "))
-    xmax = float(input("\tPlease provide the maximum x-value to include for "
-                       "each data file: "))
-    print(f"{80*'-'}\nConducting the Pearson correlation analysis...")
-    datafiles = (Path.cwd() / 'data').glob(f'*{data_ext}')
-    data_dict = {}
-    for f in datafiles:
+def dict_echem_extract(echem_file):
+    d = {}
+    data = loadData(echem_file)
+    d["time"] = data[:,INDEX_TIME]
+    d["voltage"] = data[:,INDEX_VOLTAGE]
+    d["current"] = data[:,INDEX_CURRENT]
+
+    return d
+
+
+def x_from_dict_calculate(d):
+    time, current = d["time"], d["current"]
+    x = [WORKING_ION_START_VALUE]
+    n = MASS / MOLAR_MASS
+    f = physical_constants["Faraday constant"][0]
+    for i in range(1, len(time)):
+        delta_q =  - current[i] * (time[i] - time[i-1]) * 60**2
+        delta_x = delta_q / (n * f)
+        x.append(x[i-1] + delta_x)
+    change_indices = [i for i in range(1, len(current))
+                      if current[i] != 0
+                      and current[i] * current[i-1] <= 0]
+    d["x"], d["change_indices"] = np.array(x), np.array(change_indices)
+
+    return d
+
+
+def dict_scatt_extract(scatt_files):
+    d = {}
+    for f in scatt_files:
         scan = int(str(f.stem).split('_')[-1])
-        filename = ''
+        d[scan] = {}
+        data = loadData(str(f))
+        d[scan]["x"] = data[:,0]
+        d[scan]["y"] = data[:,1]
+
+    return d
+
+
+def pearson_correlation(scatt_files, d_scatt, d_corr):
+    for f in scatt_files:
+        scan = int(str(f.stem).split('_')[-1])
+        basename = ''
         for e in str(f.stem).split("_")[0:-1]:
-            filename += f"{e}_"
-        with open(f) as input_file:
+            basename += f"{e}_"
+        with f.open(mode="r"):
             data = loadData(str(f))
         x_data, y_data = data[:,0], data[:,1]
         xmin_index, xmax_index = 0, len(x_data) - 1
+        xmin, xmax = d_corr["xmin"], d_corr["xmax"]
         for i in range(len(x_data)):
             if x_data[i] >= xmin:
                 xmin_index = i
@@ -116,12 +167,12 @@ def pearson_correlation(data_ext):
                 xmax_index = i
                 break
         if xmax_index == len(x_data) - 1:
-            data_dict[scan] = dict(x = x_data[xmin_index::],
-                                   y = y_data[xmin_index::])
+            d_scatt[scan] = dict(x = x_data[xmin_index::],
+                                 y = y_data[xmin_index::])
         else:
-            data_dict[scan] = dict(x = x_data[xmin_index:xmax_index+1],
-                                   y = y_data[xmin_index:xmax_index+1])
-    scanlist = list(data_dict.keys())
+            d_scatt[scan] = dict(x = x_data[xmin_index:xmax_index+1],
+                                 y = y_data[xmin_index:xmax_index+1])
+    scanlist = list(d_scatt.keys())
     missing_scans = []
     for i in range(1, len(scanlist)):
         if scanlist[i] - scanlist[i-1] != 1:
@@ -131,11 +182,11 @@ def pearson_correlation(data_ext):
         print(f"\nMissing scan(s) {missing_scans}. Consider including 'blank' "
                "scan(s) with this(these) scan number(s).\n")
     startscan, endscan = scanlist[0] - 1, scanlist[-1]
-    x_list = [data_dict[k]['x'] for k in data_dict]
-    y_list = [data_dict[k]['y'] for k in data_dict]
+    x_list = [d_scatt[k]['x'] for k in scanlist]
+    y_list = [d_scatt[k]['y'] for k in scanlist]
     y_list = np.array(y_list)
-    keys = [k for k in data_dict]
-    keys_str = [str(k) for k in data_dict]
+    keys = [k for k in d_scatt]
+    keys_str = [str(k) for k in scanlist]
     corr_matrix = np.corrcoef(y_list).round(decimals=6)
     corr_matrix_str = corr_matrix.astype(str)
     header_rows = np.array([keys]).astype(str)
@@ -145,7 +196,7 @@ def pearson_correlation(data_ext):
     for i in range(np.shape(corr_matrix_header)[1]):
         corr_matrix_txt = np.column_stack((corr_matrix_txt, corr_matrix_header[:,i]))
     print(f"{80*'-'}\nSaving txt file containing matrix to the 'txt' folder...")
-    np.savetxt(f'txt/{filename}correalation_matrix_x={xmin}-{xmax}.txt',
+    np.savetxt(f'txt/{basename}correalation_matrix_x={xmin}-{xmax}.txt',
                corr_matrix_txt,
                fmt='%s',
                delimiter='\t')
@@ -168,11 +219,10 @@ def pearson_correlation(data_ext):
                        aspect="equal",
                        )
     ax.grid(False)
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    # ax.xaxis.tick_top()
+    ax.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
+    ax.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
     ax.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.xaxis.set_label_position('top')
@@ -187,11 +237,11 @@ def pearson_correlation(data_ext):
     else:
         cbar = ax.figure.colorbar(im, ax=ax)
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_rel_x={xmin}-{xmax}.png',
+    plt.savefig(f'png/{basename}correlation_matrix_rel_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_rel_x={xmin}-{xmax}.pdf',
+    plt.savefig(f'pdf/{basename}correlation_matrix_rel_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
-    plt.savefig(f'svg/{filename}correlation_matrix_rel_x={xmin}-{xmax}.svg',
+    plt.savefig(f'svg/{basename}correlation_matrix_rel_x={xmin}-{xmax}.svg',
                 bbox_inches='tight')
     plt.close()
     print("\tcorrelation matrix on absolute scale...")
@@ -201,10 +251,10 @@ def pearson_correlation(data_ext):
                    vmin=0, vmax=1,
                    extent=(startscan, endscan, endscan, startscan))
     ax.grid(False)
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
+    ax.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
+    ax.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
     # ax.xaxis.tick_top()
     ax.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
@@ -214,35 +264,29 @@ def pearson_correlation(data_ext):
                    labeltop=True)
     cbar = ax.figure.colorbar(im, ax=ax, format='%.1f')
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_abs_x={xmin}-{xmax}.png',
+    plt.savefig(f'png/{basename}correlation_matrix_abs_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_abs_x={xmin}-{xmax}.pdf',
+    plt.savefig(f'pdf/{basename}correlation_matrix_abs_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
-    plt.savefig(f'svg/{filename}correlation_matrix_abs_x={xmin}-{xmax}.svg',
+    plt.savefig(f'svg/{basename}correlation_matrix_abs_x={xmin}-{xmax}.svg',
                 bbox_inches='tight')
     plt.close()
     print(f"\nPearson correlation analysis completed.\n{80*'-'}\nFigures of "
           f"the Pearson correlation matrix have been saved to the pdf and png "
           f"\nfolders. A .txt file with the correlation matrix has been saved "
           f"to the txt folder.\n{80*'-'}")
+    d_corr["corr_matrix"], d_corr["scanlist"] = corr_matrix, scanlist
+    d_corr["basename"] = basename
+    d_corr["xmin"], d_corr["xmax"] = xmin, xmax
 
-    return corr_matrix, scanlist, filename, xmin, xmax
+    return d_corr
 
 
-def dummy_scan(data_ext):
-    if not (Path.cwd() / 'data').exists():
-        print(f"{80*'-'}\nPlease create a folder named 'data' and place your "
-              f"data files there.\n{80*'-'}")
-        sys.exit()
-    files = list((Path.cwd() / 'data').glob('*.*'))
-    if len(files) == 0:
-        print(f"{80*'-'}\nPlease place your data files in the 'data' folder.\
-              \n{80*'-'}")
-        sys.exit()
-    files = list((Path.cwd() / 'data').glob(f'*{data_ext}'))
-    filename = ''
+def dummy_scan(data_scatt_path):
+    files = list(data_scatt_path.glob("*.*"))
+    basename = ''
     for e in str(files[0].stem).split("_")[0:-1]:
-        filename += f"{e}_"
+        basename += f"{e}_"
     file_ext = files[0].suffix
     zerofill = len(str(files[0].stem).split("_")[-1])
     scans = [int(str(e.stem).split("_")[-1]) for e in files]
@@ -254,35 +298,36 @@ def dummy_scan(data_ext):
     if len(missing_scans) > 0:
         with open(files[0]) as f:
             data = loadData(files[0])
-            x, y = data[:,0], data[:,1]
-        y_dummy = np.zeros(len(x))
-        xy_dummy = np.column_stack((x, y_dummy))
+            x = data[:,0]
+        xy_dummy = np.column_stack((x, np.zeros(len(x))))
         for e in missing_scans:
             if file_ext == '.gr':
-                np.savetxt(f"data/{filename}{e}{file_ext}", xy_dummy,
-                           fmt='%.2f')
+                np.savetxt(f"{data_scatt_path}/{basename}{e}{file_ext}",
+                           xy_dummy,
+                           fmt='%.2f',
+                           encoding="utf-8",
+                           )
             else:
-                np.savetxt(f"data/{filename}{e}{file_ext}", xy_dummy,
-                           fmt='%.6f')
-        print(f"\t\tThe following dummy scans have been saved to the "
-               "'data' directory:")
+                np.savetxt(f"{data_scatt_path}/{basename}{e}{file_ext}",
+                           xy_dummy,
+                           fmt='%.6f',
+                           encoding="utf-8",
+                           )
+        print(f"\nThe following dummy scans have been saved to the "
+              f"{data_scatt_path.name} directory:")
         for e in missing_scans:
-            print(f"\t\t\t{filename}{e}{file_ext}")
+            print(f"\t{basename}{e}{file_ext}")
+    else:
+        print("No scans were missing.")
 
-        return None
-
-
-def echem_collector(echemfile):
-    print("Collecting electrochemical data...")
-    data = np.loadtxt(echemfile)
-    time, voltage = data[:,0], data[:,1]
-    print(f"Electrochemical data collected.\n{80*'-'}")
-
-    return time, voltage
+    return basename
 
 
-def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
-                  ylabel_echem):
+def echem_plotter(d_echem):
+    time, voltage = d_echem["time"], d_echem["voltage"]
+    current, x = d_echem["current"], d_echem["x"]
+    voltage_min, voltage_max = d_echem["voltage_min"], d_echem["voltage_max"]
+    basename, ylabel_echem = d_echem["basename"], d_echem["ylabel_echem"]
     print(f"{80*'-'}\nPlotting electrochemistry...")
     if not isinstance(PLOT_STYLE, type(None)):
         plt.style.use(bg_mpl_style)
@@ -291,16 +336,32 @@ def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
     plt.xlim(np.amin(time), np.amax(time))
     plt.ylim(voltage_min, voltage_max)
     ylabel_echem = ylabel_echem.replace("\n", " ")
+    plt.xlabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    plt.ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
+    ax.tick_params(axis="both", labelsize=FONTSIZE_TICKS)
+    ax.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
+    ax.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
+    plt.savefig(f"png/{basename}echem_t_v.png", bbox_inches="tight")
+    plt.savefig(f"pdf/{basename}echem_t_v.pdf", bbox_inches="tight")
+    plt.savefig(f"svg/{basename}echem_t_v.svg", bbox_inches="tight")
+    plt.close()
+    fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
+    plt.plot(x, voltage, c=COLORS[1])
+    plt.xlim(np.amin(x), np.amax(x))
+    plt.ylim(voltage_min, voltage_max)
+    ylabel_echem = ylabel_echem.replace("\n", " ")
     plt.xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
     plt.ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax.tick_params(axis="both", labelsize=FONTSIZE_TICKS)
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
-    ax.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_Y))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
-    plt.savefig(f"png/{filename}echem.png", bbox_inches="tight")
-    plt.savefig(f"pdf/{filename}echem.pdf", bbox_inches="tight")
-    plt.savefig(f"svg/{filename}echem.svg", bbox_inches="tight")
+    ax.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
+    ax.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
+    ax.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    plt.savefig(f"png/{basename}echem_x_v.png", bbox_inches="tight")
+    plt.savefig(f"pdf/{basename}echem_x_v.pdf", bbox_inches="tight")
+    plt.savefig(f"svg/{basename}echem_x_v.svg", bbox_inches="tight")
     plt.close()
     print(f"Plot with electrochemistry saved to the 'pdf' and 'png' folders.\
             \n{80*'-'}")
@@ -308,20 +369,50 @@ def echem_plotter(time, voltage, filename, voltage_min, voltage_max,
     return None
 
 
-def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
-                          voltage_min, voltage_max, xmin, xmax,
-                          ylabel_echem, heightratio, shrink):
+def pearson_echem_plotter(d_corr, d_echem, d_plot):
+    corr_matrix, scanlist = d_corr["corr_matrix"], d_corr["scanlist"]
+    xmin, xmax = d_corr["xmin"], d_corr["xmax"]
+    basename = d_corr["basename"]
+    time, voltage, = d_echem["time"], d_echem["voltage"]
+    current, x = d_echem["current"], d_echem["x"]
+    voltage_min, voltage_max = d_echem["voltage_min"], d_echem["voltage_max"]
+    ylabel_echem = d_echem["ylabel_echem"]
+    heightratio = d_plot["heightratio"]
     startscan, endscan = scanlist[0] - 1, scanlist[-1]
     print("Plotting correlation matrix and electrochemistry together..."
           "\n\ton absolute scale")
     if not isinstance(PLOT_STYLE, type(None)):
         plt.style.use(bg_mpl_style)
     fig = plt.figure(dpi=DPI, figsize=(6,6))
-    # fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
-    #                         gridspec_kw={'height_ratios': heightratio,
-    #                                      # 'width_ratios': [1, 0.1]
-    #                                      }
-    #                         )
+    time = d_echem["time"]
+    voltage = d_echem["voltage"]
+    current = d_echem["current"]
+    x = d_echem["x"]
+    change_indices = d_echem["change_indices"]
+    t_changes = [time[e] for e in change_indices]
+    t_changes_labels = [f"{x[e]:.2f}" for e in change_indices]
+    xticks_labels = [f"{e:.1f}" for e in np.arange(0, 0.8, 0.2)]
+    xticks_labels.append(t_changes_labels[0])
+    for e in np.arange(0.6, 0.3, -0.2):
+        xticks_labels.append(f"{e:.1f}")
+    xticks_labels.append(t_changes_labels[1])
+    for e in np.arange(0.4, 0.6, 0.2):
+        xticks_labels.append(f"{e:.1f}")
+    t_xticks = np.array([])
+    j = 0
+    for i in range(0, len(x)):
+        if np.isclose(np.array(xticks_labels[j], dtype=float),
+                      x[i],
+                      atol=abs(x[0] - x[1]) * TOLERANCE_FACTOR
+                      ):
+            t_xticks = np.append(t_xticks, time[i])
+            j += 1
+            if j == len(xticks_labels):
+                break
+    time_min, time_max = np.amin(time), np.amax(time)
+    time_range = time_max - time_min
+    if not isinstance(PLOT_STYLE, type(None)):
+        plt.style.use(bg_mpl_style)
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
@@ -338,48 +429,40 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
                     aspect="equal",
                     )
     ax0.grid(False)
-    ax0.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax0.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    ax0.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax0.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
+    ax0.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax0.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
+    ax0.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax0.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
     ax0.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.xaxis.set_label_position('top')
     ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
-                       labeltop=True)
+                    labeltop=True)
     ax1.plot(time, voltage, c=COLORS[1])
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
     ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    ax1.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
-    ax1.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
-    ax1.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_Y))
-    ax1.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
-    # plt.subplots_adjust(hspace=0.1)
+    ax1.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax1.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax1.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
+    ax1.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
     cbar = plt.colorbar(im,
                         ax=ax0,
                         anchor=(0,1),
-                        # shrink=shrink,
-                        # format='%.1f'
                         )
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.png',
+    plt.savefig(f'png/{basename}correlation_matrix_echem_abs_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.pdf',
+    plt.savefig(f'pdf/{basename}correlation_matrix_echem_abs_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
-    plt.savefig(f'svg/{filename}correlation_matrix_echem_abs_x={xmin}-{xmax}.svg',
+    plt.savefig(f'svg/{basename}correlation_matrix_echem_abs_x={xmin}-{xmax}.svg',
                 bbox_inches='tight')
     plt.close()
     print("\ton relative scale")
     fig = plt.figure(dpi=DPI, figsize=(6,6))
-    # fig, axs = plt.subplots(dpi=DPI, figsize=(6,6), nrows=2, ncols=1,
-    #                         gridspec_kw={'height_ratios': heightratio,
-    #                                      # 'width_ratios': [1, 0.1]
-    #                                      }
-    #                         )
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
@@ -403,48 +486,188 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
                        aspect="equal",
                        )
     ax0.grid(False)
-    ax0.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax0.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
-    ax0.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR))
-    ax0.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR))
+    ax0.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax0.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
+    ax0.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR))
+    ax0.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR))
     ax0.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.xaxis.set_label_position('top')
     ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
-                       labeltop=True)
+                    labeltop=True)
     ax1.plot(time, voltage, c=COLORS[1])
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
     ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    ax1.xaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_X))
-    ax1.xaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_X))
-    ax1.yaxis.set_major_locator(ticker.MultipleLocator(TICKINDEX_MAJOR_ECHEM_Y))
-    ax1.yaxis.set_minor_locator(ticker.MultipleLocator(TICKINDEX_MINOR_ECHEM_Y))
-    # plt.subplots_adjust(hspace=0.1
+    ax1.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax1.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax1.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
+    ax1.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
     if not isinstance(CBAR_REL_DICT, type(None)):
         cbar = plt.colorbar(im,
                             ax=ax0,
                             anchor=(0,1),
-                            # shrink=shrink,
                             format=f'%.{CBAR_REL_DICT["decimals"]}f',
                             ticks=CBAR_REL_DICT["ticks"])
     else:
         cbar = plt.colorbar(im,
                             ax=ax0,
                             anchor=(0,1),
-                            # shrink=shrink,
-                            # format='%.3f'
                             )
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
-    plt.savefig(f'png/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.png',
+    plt.savefig(f'png/{basename}correlation_matrix_echem_rel_x={xmin}-{xmax}.png',
                 bbox_inches='tight')
-    plt.savefig(f'pdf/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.pdf',
+    plt.savefig(f'pdf/{basename}correlation_matrix_echem_rel_x={xmin}-{xmax}.pdf',
                 bbox_inches='tight')
-    plt.savefig(f'svg/{filename}correlation_matrix_echem_rel_x={xmin}-{xmax}.svg',
+    plt.savefig(f'svg/{basename}correlation_matrix_echem_rel_x={xmin}-{xmax}.svg',
                 bbox_inches='tight')
+    plt.close()
+    fig = plt.figure(dpi=DPI, figsize=(8,8))
+    gs = GridSpec(nrows=2,
+                  ncols=3,
+                  figure=fig,
+                  width_ratios=[0.0965, 1, 0.209],
+                  height_ratios=heightratio,
+                  hspace=0.1)
+    ax0 = fig.add_subplot(gs[0,:])
+    ax1 = fig.add_subplot(gs[1,1])
+    ax11 = ax1.twiny()
+    ax11.plot(time, voltage, c=COLORS[1])
+    ax1.set_xlim(time_min, time_max)
+    ax11.set_xlim(time_min, time_max)
+    ax1.set_ylim(voltage_min, voltage_max)
+    ax11.set_ylim(voltage_min, voltage_max)
+    voltage_range = voltage_max - voltage_min
+    ax11.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
+    ax11.xaxis.set_label_position("top")
+    ax11.tick_params(axis="x",
+                    labelbottom=False,
+                    labeltop=False,
+                    labelsize=FONTSIZE_TICKS)
+    ax11.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax11.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax11.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
+    ax11.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
+    ax1.set_xticks(t_xticks)
+    ax1.set_xticklabels(xticks_labels)
+    ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
+    ax1.xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
+    ax1.yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
+    for i in range(len(t_changes)):
+        plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
+                 voltage_min - BREAKFACTOR_Y * voltage_range,
+                 "|",
+                 rotation=45)
+    scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
+                          for i in range(corr_matrix.shape[0])]
+                          )
+    if not isinstance(CBAR_REL_DICT, type(None)):
+        im = ax0.imshow(corr_matrix,
+                        cmap=CMAP,
+                        extent=(0, np.amax(scan_time), np.amax(scan_time), 0),
+                        aspect="equal",
+                        vmin=CBAR_REL_DICT["vmin"],
+                        vmax=1,
+                        )
+    else:
+        im = ax0.imshow(corr_matrix,
+                       cmap=CMAP,
+                       extent=(0, np.amax(scan_time), np.amax(scan_time), 0),
+                       aspect="equal",
+                       )
+    ax0.set_xlabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax0.xaxis.set_label_position("top")
+    ax0.tick_params(axis="x",
+                    labelbottom=False,
+                    labeltop=True,
+                    labelsize=FONTSIZE_TICKS)
+    ax0.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax0.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax0.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax0.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax0.set_ylabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    if not isinstance(CBAR_REL_DICT, type(None)):
+        cbar = ax0.figure.colorbar(im,
+                                   ax=ax0,
+                                   format=f'%.{CBAR_REL_DICT["decimals"]}f',
+                                   ticks=CBAR_REL_DICT["ticks"])
+    else:
+        cbar = ax0.figure.colorbar(im, ax=ax0)
+    cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
+    plt.savefig(f"png/{basename}correlation_matrix_echem_t_x_v_rel_x={xmin}-{xmax}.png", bbox_inches="tight")
+    plt.savefig(f"pdf/{basename}correlation_matrix_echem_t_x_v_rel_x={xmin}-{xmax}.pdf", bbox_inches="tight")
+    plt.savefig(f"svg/{basename}correlation_matrix_echem_t_x_v_rel_x={xmin}-{xmax}.svg", bbox_inches="tight")
+    plt.close()
+    fig = plt.figure(dpi=DPI, figsize=(8,8))
+    gs = GridSpec(nrows=2,
+                  ncols=3,
+                  figure=fig,
+                  width_ratios=[0.0965, 1, 0.209],
+                  height_ratios=heightratio,
+                  hspace=0.1)
+    ax0 = fig.add_subplot(gs[0,:])
+    ax1 = fig.add_subplot(gs[1,1])
+    ax11 = ax1.twiny()
+    ax11.plot(time, voltage, c=COLORS[1])
+    ax1.set_xlim(time_min, time_max)
+    ax11.set_xlim(time_min, time_max)
+    ax1.set_ylim(voltage_min, voltage_max)
+    ax11.set_ylim(voltage_min, voltage_max)
+    voltage_range = voltage_max - voltage_min
+    ax11.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
+    ax11.xaxis.set_label_position("top")
+    ax11.tick_params(axis="x",
+                    labelbottom=False,
+                    labeltop=False,
+                    labelsize=FONTSIZE_TICKS)
+    ax11.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax11.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax11.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
+    ax11.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
+    ax1.set_xticks(t_xticks)
+    ax1.set_xticklabels(xticks_labels)
+    ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
+    ax1.xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
+    ax1.yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
+    for i in range(len(t_changes)):
+        plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
+                 voltage_min - BREAKFACTOR_Y * voltage_range,
+                 "|",
+                 rotation=45)
+    scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
+                          for i in range(corr_matrix.shape[0])]
+                          )
+    im = ax0.imshow(corr_matrix,
+                    cmap=CMAP,
+                    extent=(0, np.amax(scan_time), np.amax(scan_time), 0),
+                    aspect="equal",
+                    vmin=0,
+                    vmax=1,
+                    )
+    ax0.set_xlabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax0.xaxis.set_label_position("top")
+    ax0.tick_params(axis="x",
+                    labelbottom=False,
+                    labeltop=True,
+                    labelsize=FONTSIZE_TICKS)
+    ax0.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax0.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax0.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
+    ax0.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
+    ax0.set_ylabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    cbar = ax0.figure.colorbar(im,
+                               ax=ax0,
+                               format=f'%.1f',
+                               ticks=np.linspace(0, 1, 6))
+    cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
+    plt.savefig(f"png/{basename}correlation_matrix_echem_t_x_v_abs_x={xmin}-{xmax}.png", bbox_inches="tight")
+    plt.savefig(f"pdf/{basename}correlation_matrix_echem_t_x_v_abs_x={xmin}-{xmax}.pdf", bbox_inches="tight")
+    plt.savefig(f"svg/{basename}correlation_matrix_echem_t_x_v_abs_x={xmin}-{xmax}.svg", bbox_inches="tight")
     plt.close()
     print(f"Plots with correlation matrix and electrochemistry together have "
           f"been saved to\nthe 'pdf'and 'png' folders.\n{80*'-'}")
@@ -453,36 +676,75 @@ def pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
 
 
 def main():
-    png_path = Path.cwd() / 'png'
-    pdf_path = Path.cwd() / 'pdf'
+    data_scatt_path = Path.cwd() / "data_scatt"
+    data_echem_path = Path.cwd() / "data_echem"
+    data_paths = [data_scatt_path, data_echem_path]
+    png_path = Path.cwd() / "png"
+    pdf_path = Path.cwd() / "pdf"
     svg_path = Path.cwd() / "svg"
-    txt_path = Path.cwd() / 'txt'
-    PATHS = [png_path, pdf_path, svg_path, txt_path]
-    for path in PATHS:
-        if not path.exists():
-            path.mkdir()
+    txt_path = Path.cwd() / "txt"
+    output_paths = [png_path, pdf_path, svg_path, txt_path]
+    for p in output_paths:
+        if not p.exists():
+            p.mkdir()
     print(f"{80*'-'}\
             \nPlease see the top of the 'pearson_echem_plotter.py' file to "
             "ensure that the\nright plotsettings are used.")
-    if not (Path.cwd() / 'data').exists():
-        print(f"{80*'-'}\nPlease make a folder called 'data' and put your "
-              f"datafiles into this.\n{80*'-'}")
+    exit = False
+    for p in data_paths:
+        if not p.exists():
+            p.mkdir()
+            print(f"{80*'-'}\nA folder called '{p.name}' has been created. ")
+            exit = True
+    if exit is True:
+        print(f"{80*'-'}\nPleace place your data files in the appropriate "
+              f"folders and rerun the program.\n{80*'-'}")
         sys.exit()
-    data_ext = input(f"{80*'-'}\nCorrelation analysis inputs...\
-                     \n\tPlease provide the file extension for the datafiles "
-                     "(e.g. '.gr'): ")
-    dummy_scan(data_ext)
-    corr_matrix, scanlist, filename, xmin, xmax = pearson_correlation(data_ext)
-    echemfile = list((Path.cwd() / "data").glob('*.txt'))[0]
-    time, voltage = echem_collector(echemfile)
+    scatt_files = list(data_scatt_path.glob("*.*"))
+    echem_files = list(data_echem_path.glob("*.*"))
+    scatt_exts = []
+    for f in scatt_files:
+        if not f.suffix in scatt_exts:
+            scatt_exts.append(f.suffix)
+    if len(scatt_exts) > 1:
+        print(f"{80*'-'}\n{len(scatt_exts)} different file extensions were "
+              f"found in the '{data_scatt_path.name}' folder.\nPlease revisit "
+              f"the content of the folder such that only one file extension is "
+              f"\npresent and rerun the program.\n{80*'-'}")
+        sys.exit()
+    if len(echem_files) > 1:
+        print(f"{80*'-'}\n{len(echem_files)} echem files were found found in "
+              f"the '{data_echem_path.name}' folder.\nPlease revisit the "
+              f"content of the folder such that only one echem file is\npresent "
+              f"and rerun the program.\n{80*'-'}")
+        sys.exit()
+    print(f"{80*'-'}\nInspecting whether any dummy scans needs to be "
+          f"included...")
+    basename = dummy_scan(data_scatt_path)
+    print(f"{80*'-'}\nCollecting electrochemical data...")
+    d_echem = dict_echem_extract(echem_files[0])
+    print(f"Done collecting electrochemical data.\n{80*'-'}\nCalculating state "
+          f"of charge for electrochemical data...")
+    d_echem = x_from_dict_calculate(d_echem)
+    print(f"Done calculating state of charge for electrochemical data.\n"
+          f"{80*'-'}\nCollecting scattering data...")
+    d_scatt = dict_scatt_extract(scatt_files)
+    print(f"Done collecting scattering data.\n{80*'-'}\nConducting correlation "
+          f"analysis for scattering data...")
+    xmin = float(input(f"{80*'-'}\nPlease provide the minimum x-value to "
+                       "include for each data file: "))
+    xmax = float(input("Please provide the maximum x-value to include for "
+                       "each data file: "))
+    d_corr = dict(xmin=xmin, xmax=xmax)
+    d_corr = pearson_correlation(scatt_files, d_scatt, d_corr)
     print("Electrochemistry inputs...\n\tTime units:\n\t\t0\tseconds\
           \n\t\t1\tminutes\n\t\t2\thours")
     time_unit = int(input("\tPlease provide the time units of the echem data "
                           "file: "))
     if time_unit == 0:
-        time = time / 60**2
+        d_echem["time"] = d_echem["time"] / 60**2
     elif time_unit == 1:
-        time = time / 60
+        d_echem["time"] = d_echem["time"] / 60
     voltage_min = float(input("\tPlease provide the minimum voltage to plot: "))
     voltage_max = float(input("\tPlease provide the maximum voltage to plot: "))
     print("\tVoltage labels...\n\t\t0\tV [V]\n\t\t1\tEwe vs. Li/Li+ [V]\
@@ -492,22 +754,20 @@ def main():
     if ylabel_echem == 0:
         ylabel_echem = r"$V$ $[\mathrm{V}]$"
         heightratio = [1, HEIGHTRATIO_V_LABEL]
-        shrink = SHRINK_V_LABEL
     elif ylabel_echem == 1:
-        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$" + "\n"
+        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$ "
         ylabel_echem += r"$\mathrm{Li/Li^{+}}$ $[\mathrm{V}]$"
         heightratio = [1, HEIGHTRATIO_LI_LABEL]
-        shrink = SHRINK_LI_LABEL
     elif ylabel_echem == 2:
-        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$" + "\n"
+        ylabel_echem = r"$E_{\mathrm{we}}\,\mathrm{vs.}$ "
         ylabel_echem += r"$\mathrm{Na/Na^{+}}$ $[\mathrm{V}]$"
         heightratio = [1, HEIGHTRATIO_NA_LABEL]
-        shrink = SHRINK_NA_LABEL
-    echem_plotter(time, voltage, filename, voltage_min, voltage_max,
-                  ylabel_echem)
-    pearson_echem_plotter(corr_matrix, scanlist, time, voltage, filename,
-                          voltage_min, voltage_max, xmin, xmax,
-                          ylabel_echem, heightratio, shrink)
+    d_echem["voltage_min"], d_echem["voltage_max"] = voltage_min, voltage_max
+    d_echem["ylabel_echem"] = ylabel_echem
+    d_echem["basename"] = basename
+    d_plot = dict(heightratio=heightratio)
+    echem_plotter(d_echem)
+    pearson_echem_plotter(d_corr, d_echem, d_plot)
     print("Good job! <(^^,)>")
 
     return None
