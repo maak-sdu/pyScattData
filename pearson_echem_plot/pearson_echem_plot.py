@@ -41,6 +41,8 @@ BREAKFACTOR_Y = 0.05
 TOLERANCE_FACTOR = 10**2
 HSPACE = 0.1
 
+VLINES_ECHEM = True
+
 
 CBAR_REL_DICT = dict(
                      # r = 1-10 Å
@@ -413,6 +415,7 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     time_range = time_max - time_min
     if not isinstance(PLOT_STYLE, type(None)):
         plt.style.use(bg_mpl_style)
+    fig = plt.figure(dpi=DPI, figsize=(8,8))
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
@@ -439,16 +442,21 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
                     labeltop=True)
-    ax1.plot(time, voltage, c=COLORS[1])
+    ax1.plot(time, voltage, c=COLORS[1], zorder=0)
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
-    ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax1.set_xlabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax1.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
     ax1.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
     ax1.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
     ax1.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
+    if not isinstance(VLINES_ECHEM, type(None)):
+        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2)
+        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2)
+        for t in t_changes:
+            ax1.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     cbar = plt.colorbar(im,
                         ax=ax0,
                         anchor=(0,1),
@@ -462,7 +470,7 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
                 bbox_inches='tight')
     plt.close()
     print("\ton relative scale")
-    fig = plt.figure(dpi=DPI, figsize=(6,6))
+    fig = plt.figure(dpi=DPI, figsize=(8,8))
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
@@ -496,16 +504,21 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
                     labeltop=True)
-    ax1.plot(time, voltage, c=COLORS[1])
+    ax1.plot(time, voltage, c=COLORS[1], zorder=0)
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
-    ax1.set_xlabel(XLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    ax1.set_xlabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax1.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
     ax1.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
     ax1.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
     ax1.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
+    if not isinstance(VLINES_ECHEM, type(None)):
+        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2, zorder=2.5)
+        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=2.5)
+        for t in t_changes:
+            ax1.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     if not isinstance(CBAR_REL_DICT, type(None)):
         cbar = plt.colorbar(im,
                             ax=ax0,
@@ -535,7 +548,7 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0 = fig.add_subplot(gs[0,:])
     ax1 = fig.add_subplot(gs[1,1])
     ax11 = ax1.twiny()
-    ax11.plot(time, voltage, c=COLORS[1])
+    ax11.plot(time, voltage, c=COLORS[1], zorder=0)
     ax1.set_xlim(time_min, time_max)
     ax11.set_xlim(time_min, time_max)
     ax1.set_ylim(voltage_min, voltage_max)
@@ -557,11 +570,16 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
     ax1.yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
-    for i in range(len(t_changes)):
-        plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
-                 voltage_min - BREAKFACTOR_Y * voltage_range,
-                 "|",
-                 rotation=45)
+    # for i in range(len(t_changes)):
+    #     plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
+    #              voltage_min - BREAKFACTOR_Y * voltage_range,
+    #              "|",
+    #              rotation=45)
+    if not isinstance(VLINES_ECHEM, type(None)):
+        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2, zorder=2.5)
+        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=2.5)
+        for t in t_changes:
+            ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
                           for i in range(corr_matrix.shape[0])]
                           )
@@ -612,7 +630,7 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0 = fig.add_subplot(gs[0,:])
     ax1 = fig.add_subplot(gs[1,1])
     ax11 = ax1.twiny()
-    ax11.plot(time, voltage, c=COLORS[1])
+    ax11.plot(time, voltage, c=COLORS[1], zorder=0)
     ax1.set_xlim(time_min, time_max)
     ax11.set_xlim(time_min, time_max)
     ax1.set_ylim(voltage_min, voltage_max)
@@ -634,11 +652,16 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
     ax1.yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
-    for i in range(len(t_changes)):
-        plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
-                 voltage_min - BREAKFACTOR_Y * voltage_range,
-                 "|",
-                 rotation=45)
+    # for i in range(len(t_changes)):
+    #     plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
+    #              voltage_min - BREAKFACTOR_Y * voltage_range,
+    #              "|",
+    #              rotation=45)
+    if not isinstance(VLINES_ECHEM, type(None)):
+        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2)
+        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2)
+        for t in t_changes:
+            ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
                           for i in range(corr_matrix.shape[0])]
                           )
