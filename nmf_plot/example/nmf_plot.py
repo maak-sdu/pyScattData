@@ -3,9 +3,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from diffpy.utils.parsers.loaddata import loadData
+from scipy.constants import physical_constants
 import matplotlib.pyplot as plt
-from matplotlib import cycler
 from matplotlib.ticker import MultipleLocator
+from matplotlib.gridspec import GridSpec
 try:
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
     PLOTSTYLE = "found"
@@ -18,7 +19,22 @@ INDEX_TIME = 0
 INDEX_VOLTAGE = 1
 INDEX_CURRENT = 2
 
+# Inputs to calculate amount of working ion transferred
+WORKING_ION_CHARGE = 1
+WORKING_ION_START_VALUE = 0
+MOLAR_MASS = 79.866
+MASS = 0.6 * 11.276 * 10**-3
+
+
+VOLTAGE_LIMITS = True
+VOLTAGE_MIN = 1
+VOLTAGE_MAX = 3
+BREAKFACTOR_X = 0.06
+BREAKFACTOR_Y = 0.05
+TOLERANCE_FACTOR = 10**2
+
 # Echem labels for plots
+XLABEL = "$x$ in Li$_{x}$TiO$_{2}$"
 ECHEMLABEL_DICT = {"V_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
                                   y = r"$V$ $[\mathrm{V}]$"),
                    "Ewe_Li_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
@@ -34,19 +50,19 @@ FONTSIZE_LABELS = 20
 FONTSIZE_TICKS = 16
 XLABEL_COMPS = r"$r$ $[\mathrm{\AA}]$"
 YLABEL_COMPS = r"$G$ $[\mathrm{\AA}^{-2}]$"
-XLABEL_PHASERATIO = "Scan Number"
-YLABEL_PHASERATIO = "Weight"
-XLABEL_RECON = "Number of components"
-YLABEL_RECON = "RE"
+XLABEL_PHASERATIO = r"$t$ [h]"
+YLABEL_PHASERATIO = r"$W$"
+XLABEL_RECON = r"$NOC$"
+YLABEL_RECON = r"$RE$"
 XLABEL_ECHEM = ECHEMLABEL_DICT["Ewe_Li_t[h]"]["x"]
 YLABEL_ECHEM = ECHEMLABEL_DICT["Ewe_Li_t[h]"]["y"]
 VOLTAGE_MIN = 1
 VOLTAGE_MAX = 3
 MAJOR_TICK_INDEX_TIME = 5
 MAJOR_TICK_INDEX_VOLTAGE = 0.5
-MAJOR_TICK_INDEX_SCAN = 10
+# MAJOR_TICK_INDEX_SCAN = 10
 MAJOR_TICK_INDEX_WEIGHT = 0.2
-MAJOR_TICK_INDEX_R = 10
+MAJOR_TICK_INDEX_R = 5
 MAJOR_TICK_INDEX_G = 0.5
 MAJOR_TICK_INDEX_RE = 5
 MINOR_TICKS = 5
@@ -216,6 +232,23 @@ def echem_collect(echemfile):
     return d
 
 
+def x_from_dict_calcualte(d):
+    time, current = d["time"], d["current"]
+    x = [WORKING_ION_START_VALUE]
+    n = MASS / MOLAR_MASS
+    f = physical_constants["Faraday constant"][0]
+    for i in range(1, len(time)):
+        delta_q =  - current[i] * (time[i] - time[i-1]) * 60**2
+        delta_x = delta_q / (n * f)
+        x.append(x[i-1] + delta_x)
+    change_indices = [i for i in range(1, len(current))
+                      if current[i] != 0
+                      and current[i] * current[i-1] <= 0]
+    d["x"], d["change_indices"] = np.array(x), np.array(change_indices)
+
+    return d
+
+
 def echem_plot(d_echem):
     time, voltage = d_echem["time"], d_echem["voltage"]
     echemfig = plt.figure(dpi=DPI, figsize=FIGSIZE)
@@ -283,20 +316,48 @@ def nmf_echem_plot(d_comps, d_weights, d_recon, d_echem):
     scans = [d_weights[e]["scans"] for e in phasenames]
     weights = [d_weights[e]["weights"] for e in phasenames]
     xrecon, recon = d_recon["xrecon"], d_recon["recon"]
-    time, voltage = d_echem["time"], d_echem["voltage"]
     max_comps = np.array([np.amax(comp) for comp in comps])
     max_comps_sum = [np.sum(max_comps[0:i]) for i in range(len(max_comps))]
     comps_offset = comps[0]
     for i in range(1, len(max_comps)):
         comps_offset = np.vstack((comps_offset, comps[i] + max_comps_sum[i] + 0.05*max_comps_sum[-1]))
+    time, voltage = d_echem["time"], d_echem["voltage"]
+    current, x = d_echem["current"], d_echem["x"]
+    change_indices = d_echem["change_indices"]
+    t_changes = [time[e] for e in change_indices]
+    t_changes_labels = [f"{x[e]:.2f}" for e in change_indices]
+    xticks_labels = [f"{e:.1f}" for e in np.arange(0, 1, 0.5)]
+    xticks_labels.append(t_changes_labels[0])
+    for e in np.arange(0.5, 0, -0.5):
+        xticks_labels.append(f"{e:.1f}")
+    xticks_labels.append(t_changes_labels[1])
+    # for e in np.arange(0.5, 1, 0.5):
+    #     xticks_labels.append(f"{e:.1f}")
+    # print(xticks_labels)
+    # sys.exit()
+    t_xticks = np.array([])
+    j = 0
+    for i in range(0, len(x)):
+        if np.isclose(np.array(xticks_labels[j], dtype=float),
+                      x[i],
+                      atol=abs(x[0] - x[1]) * TOLERANCE_FACTOR
+                      ):
+            t_xticks = np.append(t_xticks, time[i])
+            j += 1
+            if j == len(xticks_labels):
+                break
+    time_min, time_max = np.amin(time), np.amax(time)
+    time_range = time_max - time_min
+    voltage_min, voltage_max = np.amin(voltage), np.amax(voltage)
+    voltage_range = voltage_max - voltage_min
+    if not isinstance(PLOTSTYLE, type(None)):
+        plt.style.use(bg_mpl_style)
     fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, nrows=2, ncols=2,
                             gridspec_kw={'height_ratios': [2, 1],
                                          'wspace': WSPACE,
                                          'hspace': HSPACE,
                                          }
                             )
-    if not isinstance(PLOTSTYLE, type(None)):
-        plt.style.use(bg_mpl_style)
     for i in range(len(compnames)):
         axs[0,0].plot(xcomps[i], comps_offset[i], label=compnames[i])
     axs[0,0].set_xlabel(XLABEL_COMPS)#, fontsize=FONTSIZE)
@@ -308,7 +369,7 @@ def nmf_echem_plot(d_comps, d_weights, d_recon, d_echem):
     axs[0,0].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_R / MINOR_TICKS))
     axs[0,0].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_G))
     axs[0,0].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_G / MINOR_TICKS))
-    axs[1,0].plot(xrecon, recon)
+    axs[1,0].plot(xrecon, recon, marker="o")
     axs[1,0].set_xlabel(XLABEL_RECON)
     axs[1,0].set_ylabel(YLABEL_RECON)
     axs[1,0].set_xticks(xrecon)
@@ -318,32 +379,62 @@ def nmf_echem_plot(d_comps, d_weights, d_recon, d_echem):
     axs[1,0].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_RE))
     axs[1,0].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_RE / MINOR_TICKS))
     for i in range(len(phasenames)):
-        axs[0,1].plot(scans[i], weights[i], label=phasenames[i], marker="o")
+        axs[0,1].plot(scans[i] * (time_range / (len(scans[0]) + 1)), weights[i], label=phasenames[i], marker="o")
     axs[0,1].set_xlabel(XLABEL_PHASERATIO)#, fontsize=FONTSIZE)
     axs[0,1].set_ylabel(YLABEL_PHASERATIO)#, fontsize=FONTSIZE)
     axs[0,1].set_xticks([i*10 for i in range(1, (scans[0][-1] // 10)+1)])
     axs[0,1].tick_params(axis="x", top="True", bottom="True", labeltop=True, labelbottom=False)
     axs[0,1].xaxis.set_label_position("top")
     if not isinstance(VLINES_NMF, type(None)):
-        for vline in VLINES_NMF:
-            axs[0,1].axvline(x=vline, ls="--", c="k", lw=2)
-    axs[0,1].set_xlim(np.amin(scans), np.amax(scans))
-    axs[0,1].xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_SCAN))
-    axs[0,1].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_SCAN / MINOR_TICKS))
+        for t in t_changes:
+            axs[0,1].axvline(x=0.989*t, ls="--", c="k", lw=2)
+    axs[0,1].set_xlim(time_min, time_max)
+    axs[0,1].xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME))
+    axs[0,1].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / MINOR_TICKS))
     axs[0,1].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_WEIGHT))
     axs[0,1].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_WEIGHT / MINOR_TICKS))
-    axs[1,1].plot(time, voltage)
-    axs[1,1].set_xlabel(XLABEL_ECHEM)#, fontsize=FONTSIZE)
-    axs[1,1].set_ylabel(YLABEL_ECHEM)#, fontsize=FONTSIZE)
+    # gs = GridSpec(nrows=2,
+    #               ncols=2,
+    #               figure=fig,
+    #               width_ratios=[1, 0.1375],
+    #               height_ratios=[1, 0.4],
+    #               hspace=HSPACE,
+    #               )
+    # axs10 = axs[1,1].add_subplot(gs[1,0])
+    axs11 = axs[1,1].twiny()
+    axs11.plot(time, voltage)
+    axs11.set_xlim(time_min, time_max)
+    axs[1,1].set_xlim(time_min, time_max)
+    # axs[1,1].plot(time, voltage)
+    # axs11.set_xlabel(XLABEL_ECHEM)#, fontsize=FONTSIZE)
+    # axs11.set_ylabel(YLABEL_ECHEM)#, fontsize=FONTSIZE)
+    axs11.tick_params(axis="x", labeltop=False, labelbottom=False)
     if not isinstance(VLINES_ECHEM, type(None)):
-        for vline in VLINES_ECHEM:
-            axs[1,1].axvline(x=vline, ls="--", c="k", lw=2)
-    axs[1,1].set_xlim(np.amin(time), np.amax(time))
-    axs[1,1].set_ylim(VOLTAGE_MIN, VOLTAGE_MAX)
-    axs[1,1].xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME))
-    axs[1,1].xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / MINOR_TICKS))
-    axs[1,1].yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE))
-    axs[1,1].yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE / MINOR_TICKS))
+        # for t in t_changes:
+        #     axs11.axvline(x=0.99*t, ls="--", c="k", lw=2)
+        axs11.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2)
+        axs11.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2)
+    # axs11.set_xlim(np.amin(time), np.amax(time))
+    axs11.set_ylim(VOLTAGE_MIN, VOLTAGE_MAX)
+    axs11.xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME))
+    axs11.xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / MINOR_TICKS))
+    axs11.yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE))
+    axs11.yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_VOLTAGE / MINOR_TICKS))
+
+    axs[1,1].set_xticks(t_xticks)
+    axs[1,1].set_xticklabels(xticks_labels)
+    axs[1,1].set_xlabel(XLABEL, fontsize=FONTSIZE_LABELS)
+    axs[1,1].set_ylabel(YLABEL_ECHEM, fontsize=FONTSIZE_LABELS)
+    axs[1,1].xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
+    axs[1,1].yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
+    # for i in range(len(t_changes)):
+    #     axs[1,1].text(t_changes[i] - BREAKFACTOR_X * time_range,
+    #              voltage_min - BREAKFACTOR_Y * voltage_range,
+    #              "|",
+    #              rotation=45)
+    scan_time = np.array([i * (time_range / (len(scans) - 1))
+                          for i in range(len(scans))])
+
     fig.legend(compnames, loc='upper center', ncol=len(compnames),
                borderaxespad=-0.2, edgecolor='white')
     axs[0,0].text(0.84, 0.9, "(a)", transform=axs[0,0].transAxes)
@@ -379,6 +470,7 @@ def main():
     echemfile = list((Path.cwd() / "data_echem").glob("*.txt"))[0]
     print("\techem")
     d_echem = echem_collect(echemfile)
+    d_echem = x_from_dict_calcualte(d_echem)
     # for i in range(len(time)):
     #     if time[i] < 22.1:
     #         time_max_index = i + 1
