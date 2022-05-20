@@ -27,13 +27,14 @@ MASS = 0.6 * 11.276 * 10**-3
 # Inputs for plots
 DPI = 600
 FIGSIZE = (8,8)
-FONTSIZE_LABELS = 20
-FONTSIZE_TICKS = 14
+FONTSIZE_LABELS = 18
+FONTSIZE_TICKS = 12
 HSPACE = 0.1
 
 XLABEL = "$x$ in Li$_{x}$TiO$_{2}$"
 TIMELABEL = "$t$ $[\mathrm{h}]$"
-VOLTAGELABEL = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Li/Li$^{+} [\mathrm{V}]$"
+# VOLTAGELABEL = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Li/Li$^{+} [\mathrm{V}]$"
+VOLTAGELABEL = r"$E_{\mathrm{we}}$ vs. Li/Li$^{+} [\mathrm{V}]$"
 
 SCATT_XMIN = 1
 SCATT_XMAX = 10
@@ -67,6 +68,7 @@ VOLTAGE_MAX = 3
 BREAKFACTOR_X = 0.04
 BREAKFACTOR_Y = 0.04
 TOLERANCE_FACTOR = 10**2
+VLINES_ECHEM = True
 
 
 def diverging_cmap_generate(rgb_start, rgb_end):
@@ -196,7 +198,7 @@ def scatt_echem_plot(d_echem, scatt_array, output_folders):
                   )
     ax1 = fig.add_subplot(gs[1,0])
     ax11 = ax1.twiny()
-    ax11.plot(time, voltage)
+    ax11.plot(time, voltage, zorder=0)
     ax1.set_xlim(time_min, time_max)
     ax11.set_xlim(time_min, time_max)
     if VOLTAGE_LIMITS is True:
@@ -224,11 +226,16 @@ def scatt_echem_plot(d_echem, scatt_array, output_folders):
     ax1.set_ylabel(VOLTAGELABEL, fontsize=FONTSIZE_LABELS)
     ax1.xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
     ax1.yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
-    for i in range(len(t_changes)):
-        plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
-                 voltage_min - BREAKFACTOR_Y * voltage_range,
-                 "|",
-                 rotation=45)
+    # for i in range(len(t_changes)):
+    #     plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
+    #              voltage_min - BREAKFACTOR_Y * voltage_range,
+    #              "|",
+    #              rotation=45)
+    if not isinstance(VLINES_ECHEM, type(None)):
+        ax11.axvline(x=0.987*t_changes[0], ls="--", c="k", lw=2, zorder=1)
+        ax11.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=1)
+        # for t in t_changes:
+        #     ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     scan_time = np.array([i * (time_range / (scatt_array.shape[1] - 1))
                           for i in range(scatt_array.shape[1])])
     ax0 = fig.add_subplot(gs[0,:],
@@ -257,7 +264,7 @@ def scatt_echem_plot(d_echem, scatt_array, output_folders):
         cbar.formatter.set_powerlimits((0, 0))
     cbar.set_label(label=SCATT_YLABEL, size=FONTSIZE_LABELS)
     ax0.xaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME))
-    ax0.xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / 5))    
+    ax0.xaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_TIME / 5))
     ax0.yaxis.set_major_locator(MultipleLocator(MAJOR_TICK_INDEX_SCATT_X))
     ax0.yaxis.set_minor_locator(MultipleLocator(MAJOR_TICK_INDEX_SCATT_X / 5))
     for f in output_folders:
