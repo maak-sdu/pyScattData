@@ -453,8 +453,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax1.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
     ax1.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
     if not isinstance(VLINES_ECHEM, type(None)):
-        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2)
-        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2)
+        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2, zorder=1)
+        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=1)
         for t in t_changes:
             ax1.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     cbar = plt.colorbar(im,
@@ -515,8 +515,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax1.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
     ax1.yaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_VOLTAGE))
     if not isinstance(VLINES_ECHEM, type(None)):
-        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2, zorder=2.5)
-        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=2.5)
+        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2, zorder=1)
+        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=1)
         for t in t_changes:
             ax1.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     if not isinstance(CBAR_REL_DICT, type(None)):
@@ -576,10 +576,10 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     #              "|",
     #              rotation=45)
     if not isinstance(VLINES_ECHEM, type(None)):
-        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2, zorder=2.5)
-        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=2.5)
-        for t in t_changes:
-            ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
+        ax11.axvline(x=0.987*t_changes[0], ls="--", c="k", lw=2, zorder=1)
+        ax11.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=1)
+        # for t in t_changes:
+        #     ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
                           for i in range(corr_matrix.shape[0])]
                           )
@@ -658,10 +658,10 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     #              "|",
     #              rotation=45)
     if not isinstance(VLINES_ECHEM, type(None)):
-        # ax1.axvline(x=0.989*t_changes[0], ls="--", c="k", lw=2)
-        # ax1.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2)
-        for t in t_changes:
-            ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
+        ax11.axvline(x=0.987*t_changes[0], ls="--", c="k", lw=2, zorder=1)
+        ax11.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=1)
+        # for t in t_changes:
+        #     ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
                           for i in range(corr_matrix.shape[0])]
                           )
