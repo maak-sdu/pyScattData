@@ -38,9 +38,9 @@ XLABEL = "$x$ in Li$_{x}$TiO$_{2}$"
 ECHEMLABEL_DICT = {"V_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
                                   y = r"$V$ $[\mathrm{V}]$"),
                    "Ewe_Li_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
-                                       y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Li/Li$^{+} [\mathrm{V}]$"),
+                                       y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Li/Li$^{+}$ $[\mathrm{V}]$"),
                    "Ewe_Na_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
-                                       y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Na/Na$^{+} [\mathrm{V}]$")
+                                       y = r"$E_{\mathrm{we}}$ vs." + "\n" + r"Na/Na$^{+}$ $[\mathrm{V}]$")
                     }
 
 # Plot inputs
