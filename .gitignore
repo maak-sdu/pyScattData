@@ -66,6 +66,12 @@ iq_fq_gr_stackplots/example/pdf
 iq_fq_gr_stackplots/example/png
 iq_fq_gr_stackplots/example/svg
 
+# iq_fq_gr_stackplots_echem
+iq_fq_gr_stackplots_echem/example/pdf
+iq_fq_gr_stackplots_echem/example/png
+iq_fq_gr_stackplots_echem/example/svg
+
+
 # iq_sq_fq_gr_plot
 iq_sq_fq_gr_plot/example/pdf
 iq_sq_fq_gr_plot/example/png
