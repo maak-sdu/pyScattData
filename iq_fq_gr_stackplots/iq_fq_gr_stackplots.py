@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from diffpy.utils.parsers.loaddata import loadData
 from matplotlib.ticker import MultipleLocator
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 try:
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
     PLOT_STYLE = "found"
@@ -20,11 +21,39 @@ XMIN = 1
 XMAX = 10
 MAJOR_INDEX_X = 1
 LINEWIDTH = 1
-COLORS = dict(bg_blue='#0B3C5D', bg_red='#B82601', bg_green='#1c6b0a',
-              bg_lightblue='#328CC1', bg_darkblue='#062F4F', bg_yellow='#D9B310',
-              bg_darkred='#984B43', bg_bordeaux='#76323F', bg_olivegreen='#626E60',
-              bg_yellowgrey='#AB987A', bg_brownorange='#C09F80')
 
+
+SCATTLABEL_DICT = {"gr": dict(x = r"$r$ $[\mathrm{\AA}]$",
+                              y = r"$G$ $[\mathrm{\AA}^{-2}]$"),
+                   "fq[A^-1]": dict(x = r"$Q$ $[\mathrm{\AA}^{-1}]$",
+                                    y = r"$F$ $[\mathrm{\AA}^{-1}]$"),
+                   "fq[nm^-1]": dict(x = r"$Q$ $[\mathrm{nm}^{-1}]$",
+                                     y = r"$F$ $[\mathrm{\nm}^{-1}]$"),
+                   "sq[A^-1]": dict(x = r"$Q$ $[\mathrm{\AA}^{-1}]$",
+                                    y = r"$S$ $[\mathrm{arb. u.}]$"),
+                   "sq[nm^-1]": dict(x = r"$Q$ $[\mathrm{nm}^{-1}]$",
+                                     y = r"$S$ $[\mathrm{arb. u.}]$"),
+                   "iq[A^-1]": dict(x = r"$Q$ $[\mathrm{\AA}^{-1}]$",
+                                    y = r"$I$ $[\mathrm{arb. u.}]$"),
+                   "iq[nm^-1]": dict(x = r"$Q$ $[\mathrm{nm}^{-1}]$",
+                                     y = r"$I$ $[\mathrm{arb. u.}]$"),
+                   "iq[2theta]": dict(x = r"$2\theta$ $[\degree]$",
+                                      y = r"$I$ $[\mathrm{arb. u.}]$"),
+                   "xy": dict(x = r"$x$",
+                              y = r"$y$")
+                    }
+
+
+CMAPS = dict(blue = LinearSegmentedColormap.from_list('my_gradient', (
+                                                                    (0.000, (0.043, 0.235, 0.365)),
+                                                                    (1.000, (1.000, 1.000, 1.000)))),
+             red=LinearSegmentedColormap.from_list('my_gradient', (
+                                                                    (0.000, (0.722, 0.149, 0.004)),
+                                                                    (1.000, (1.000, 1.000, 1.000)))),
+             green=LinearSegmentedColormap.from_list('my_gradient', (
+                                                                    (0.000, (0.110, 0.420, 0.039)),
+                                                                    (1.000, (1.000, 1.000, 1.000)))),
+                                                                            )
 
 
 def d_xy_extract(files):
@@ -39,24 +68,21 @@ def iq_fq_gr_stackplot(d, output_folders):
     d_keys = list(d.keys())
     if not isinstance(PLOT_STYLE, type(None)):
         plt.style.use(bg_mpl_style)
-    #     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-    # else:
-    #     colors = list(COLORS.values())
     fig, axs = plt.subplots(dpi=DPI, figsize=FIGSIZE, ncols=3, nrows=1)
     for i in range(len(d_keys)):
         keys = list(d[d_keys[i]].keys())
         if d_keys[i] == "gr":
-            xlabel = r"$r$ $[\mathrm{\AA}]$"
-            ylabel = r"$G$ $[\mathrm{\AA}^{-2}]$"
-            colors = colors = plt.cm.Greens(np.linspace(1, 0.5, len(keys)))
+            xlabel = SCATTLABEL_DICT["gr"]["x"]
+            ylabel = SCATTLABEL_DICT["gr"]["y"]
+            colors = CMAPS["blue"](np.linspace(0, 0.5, len(keys)))
         elif d_keys[i] == "iq":
-            xlabel = r"$Q$ $[\mathrm{\AA}^{-1}]$"
-            ylabel = r"$I$ $[\mathrm{arb. u.}]$"
-            colors = colors = plt.cm.Reds(np.linspace(1, 0.5, len(keys)))
+            xlabel = SCATTLABEL_DICT["iq[A^-1]"]["x"]
+            ylabel = SCATTLABEL_DICT["iq[A^-1]"]["y"]
+            colors = CMAPS["red"](np.linspace(0, 0.5, len(keys)))
         elif d_keys[i] == "fq":
-            xlabel = r"$Q$ $[\mathrm{\AA}^{-1}]$"
-            ylabel = r"$F$ $[\mathrm{\AA}^{-1}]$"
-            colors = colors = plt.cm.Blues(np.linspace(1, 0.5, len(keys)))
+            xlabel = SCATTLABEL_DICT["fq[A^-1]"]["x"]
+            ylabel = SCATTLABEL_DICT["fq[A^-1]"]["y"]
+            colors = CMAPS["green"](np.linspace(0, 0.5, len(keys)))
         for j in range(len(keys)):
             x, y = d[d_keys[i]][keys[j]][:,0], d[d_keys[i]][keys[j]][:,1]
             xmin, xmax = np.amin(x), np.amax(x)
@@ -104,25 +130,24 @@ def main():
                   f"the program.")
             exit = True
     if exit is True:
+        print(f"{80*'-'}")
         sys.exit()
     data_files = {}
     for p in data_paths:
-        data_files[p.name] = list(p.glob(f"*.{p.name}"))
+        if not p.name == "echem":
+            data_files[p.name] = list(p.glob(f"*.{p.name}"))
+        else:
+            data_files[p.name] = list(p.glob(f"*.txt"))
     for k in data_files.keys():
-        if len(data_files[k]) == 0:
+        if len(data_files[k]) == 0 and k != "echem":
             print(f"{80*'-'}\nNo .{k} files were found in the '{k}' folder.")
+        elif len(data_files[k]) == 0 and k == "echem":
+            print(f"{80*'-'}\nNo {k} files were found in the '{k}' folder.")
             exit = True
     if exit is True:
         print(f"{80*'-'}\nPlease place your data files in the appropriate "
-              f"folder(s) and rerun the program.")
+              f"folder(s) and rerun the program.\n{80*'-'}")
         sys.exit()
-    # data_files_exts = {}
-    # if len(data_files_exts) > 1:
-    #     print(f"{80*'-'}\n{len(data_files_exts)} file extensions were found in "
-    #           f"the '{data_path.name}' folder.\n{80*'-'}\nPlease ensure that "
-    #           f"only 1 file extension is present in the '{data_path.name}' "
-    #           f"folder and\nrerun program.")
-    #     sys.exit()
     output_folders = ["pdf", "png", "svg"]
     for e in output_folders:
         if not (Path.cwd() / e).exists():
