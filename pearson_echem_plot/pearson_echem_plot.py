@@ -7,12 +7,34 @@ from scipy.constants import physical_constants
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.gridspec import GridSpec
+from matplotlib.colors import LinearSegmentedColormap
 try:
     from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
     PLOT_STYLE = "found"
 except ModuleNotFoundError:
     PLOT_STYLE = None
 
+# bg_mpl_stylesheet colors
+COLORS = ['#0B3C5D', '#B82601', '#1c6b0a', '#328CC1',
+          '#a8b6c1', '#D9B310', '#984B43', '#76323F',
+          '#626E60', '#AB987A', '#C09F80', '#b0b0b0ff']
+
+# See possible colormaps in the dictionary below.
+CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
+         5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
+         10: 'YlOrBr', 11:'YlOrRd', 12:'OrRd', 13:'PuRd', 14:'RdPu',
+         15:'BuPu', 16:'GnBu', 17:'PuBu', 18:'YlGnBu', 19:'PuBuGn',
+         20:'BuGn', 21:'YlGn', 22:'binary', 23:'gist_yarg', 24:'gist_gray',
+         25:'gray', 26:'bone', 27:'pink', 28:'spring', 29:'summer',
+         30:'autumn', 31:'winter', 32:'cool', 33:'Wistia', 34:'hot',
+         35:'afmhot', 36:'gist_heat', 37:'copper', 38:'PiYG', 39:'PRGn',
+         40:'BrBG', 41:'PuOr', 42:'RdGy', 43:'RdBu', 44:'RdYlBu',
+         45:'RdYlGn', 46:'Spectral', 47:'coolwarm', 48:'bwr', 49:'seismic',
+         50:'twilight', 51:'twilight_shifted', 52:'hsv', 53:'ocean',
+         54:'gist_earth', 55:'terrain', 56:'gist_stern', 57:'gnuplot',
+         58:'gnuplot2', 59:'CMRmap', 60:'cubehelix', 61:'brg',
+         62:'gist_rainbow', 63:'rainbow', 64:'jet', 65:'turbo',
+         66:'nipy_spectral', 67:'gist_ncar'}
 
 # Inputs to load echem
 INDEX_TIME = 0
@@ -34,14 +56,15 @@ TICKINDEX_MAJOR = 10
 TICKINDEX_MINOR = 1
 FONTSIZE_TICKS = 12
 FONTSIZE_LABELS = 18
-CMAP = 'YlOrRd'
+CMAP = CMAPS[11]
+ECHEM_LINE_COLOR = COLORS[1]
+WIDTH_RATIOS = [0.0965, 1, 0.209]
 
-BREAKFACTOR_X = 0.04
-BREAKFACTOR_Y = 0.05
 TOLERANCE_FACTOR = 10**2
 HSPACE = 0.1
 
 VLINES_ECHEM = True
+VLINES_ECHEM_OFFSETS = [0.987, 0.9925]
 
 
 CBAR_REL_DICT = dict(
@@ -49,30 +72,40 @@ CBAR_REL_DICT = dict(
                      # vmin = 0.85,
                      # decimals = 3,
                      # ticks = np.linspace(0.85, 1.0, int((1.0-0.85)/0.025)+1)
+                     #
                      # r = 10-20 Å
                      # vmin = 0.5,
                      # decimals = 1,
                      # ticks = np.linspace(0.5, 1.0, int((1.0-0.5)/0.1)+1)
+                     #
                      # r = 20-30 Å
                      # vmin = 0.65,
                      # decimals = 2,
                      # ticks = np.linspace(0.65, 1.0, int((1.0-0.65)/0.05)+2)
+                     #
                      # r = 1-15 Å
                      # vmin = 0.825,
                      # decimals = 3,
                      # ticks = np.linspace(0.825, 1.0, int((1.0-0.825)/0.025)+1)
+                     #
+                     # r = 15-30 Å
+                     # vmin = 0.75,
+                     # decimals = 2,
+                     # ticks = np.linspace(0.75, 1.0, int((1.0-0.75)/0.05)+1)
+                     #
                      # r = 10-25 Å
                      # vmin = 0.5,
                      # decimals = 1,
                      # ticks = np.linspace(0.5, 1.0, int((1.0-0.5)/0.1)+1)
+                     #
                      # r = 1-30 Å
-                     vmin = 0.825,
-                     decimals = 3,
-                     ticks = np.linspace(0.825, 1, int((1-0.825)/0.025)+1)
+                     # vmin = 0.825,
+                     # decimals = 3,
+                     # ticks = np.linspace(0.825, 1, int((1-0.825)/0.025)+1)
                     )
 # print(CBAR_REL_DICT["ticks"])
 # sys.exit()
-# CBAR_REL_DICT = None
+CBAR_REL_DICT = None
 
 TIMELABEL_ECHEM = r"$t$ $[\mathrm{h}]$"
 XLABEL_ECHEM = r"$x$ in Li$_{x}$TiO$_{2}$"
@@ -87,27 +120,6 @@ TICKINDEX_MAJOR_ECHEM_X = 0.2
 TICKINDEX_MINOR_ECHEM_X = 0.2 / 5
 TICKINDEX_MAJOR_ECHEM_VOLTAGE = 0.5
 TICKINDEX_MINOR_ECHEM_VOLTAGE = 0.1
-
-COLORS = ['#0B3C5D', '#B82601', '#1c6b0a', '#328CC1',
-          '#a8b6c1', '#D9B310', '#984B43', '#76323F',
-          '#626E60', '#AB987A', '#C09F80', '#b0b0b0ff']
-
-# See possible colormaps in the dictionary below.
-CMAPS = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'Greys',
-         5:'Purples', 6:'Blues', 7:'Greens', 8:'Oranges', 9:'Reds',
-         10: 'YlOrBr', 11:'YlOrRd', 12:'OrRd', 13:'PuRd', 14:'RdPu',
-         15:'BuPu', 16:'GnBu', 17:'PuBu', 18:'YlGnBu', 19:'PuBuGn',
-         20:'BuGn', 21:'YlGn', 22:'binary', 23:'gist_yarg', 24:'gist_gray',
-         25:'gray', 26:'bone', 27:'pink', 28:'spring', 29:'summer',
-         30:'autumn', 31:'winter', 32:'cool', 33:'Wistia', 34:'hot',
-         35:'afmhot', 36:'gist_heat', 37:'copper', 38:'PiYG', 39:'PRGn',
-         40:'BrBG', 41:'PuOr', 42:'RdGy', 43:'RdBu', 44:'RdYlBu',
-         45:'RdYlGn', 46:'Spectral', 47:'coolwarm', 48:'bwr', 49:'seismic',
-         50:'twilight', 51:'twilight_shifted', 52:'hsv', 53:'ocean',
-         54:'gist_earth', 55:'terrain', 56:'gist_stern', 57:'gnuplot',
-         58:'gnuplot2', 59:'CMRmap', 60:'cubehelix', 61:'brg',
-         62:'gist_rainbow', 63:'rainbow', 64:'jet', 65:'turbo',
-         66:'nipy_spectral', 67:'gist_ncar'}
 
 
 def dict_echem_extract(echem_file):
@@ -334,7 +346,7 @@ def echem_plotter(d_echem):
     if not isinstance(PLOT_STYLE, type(None)):
         plt.style.use(bg_mpl_style)
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
-    plt.plot(time, voltage, c=COLORS[1])
+    plt.plot(time, voltage, c=ECHEM_LINE_COLOR)
     plt.xlim(np.amin(time), np.amax(time))
     plt.ylim(voltage_min, voltage_max)
     ylabel_echem = ylabel_echem.replace("\n", " ")
@@ -350,7 +362,7 @@ def echem_plotter(d_echem):
     plt.savefig(f"svg/{basename}echem_t_v.svg", bbox_inches="tight")
     plt.close()
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
-    plt.plot(x, voltage, c=COLORS[1])
+    plt.plot(x, voltage, c=ECHEM_LINE_COLOR)
     plt.xlim(np.amin(x), np.amax(x))
     plt.ylim(voltage_min, voltage_max)
     ylabel_echem = ylabel_echem.replace("\n", " ")
@@ -385,7 +397,6 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
           "\n\ton absolute scale")
     if not isinstance(PLOT_STYLE, type(None)):
         plt.style.use(bg_mpl_style)
-    fig = plt.figure(dpi=DPI, figsize=(6,6))
     time = d_echem["time"]
     voltage = d_echem["voltage"]
     current = d_echem["current"]
@@ -419,7 +430,7 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
-                  width_ratios=[0.0965, 1, 0.209],
+                  width_ratios=WIDTH_RATIOS,
                   height_ratios=heightratio,
                   hspace=0.1)
     ax0 = fig.add_subplot(gs[0,:])
@@ -440,9 +451,13 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.xaxis.set_label_position('top')
     ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
-                    labeltop=True)
-    ax1.plot(time, voltage, c=COLORS[1], zorder=0)
+    ax0.tick_params(axis="x",
+                    bottom=True,
+                    top=True,
+                    labelbottom=False,
+                    labeltop=True,
+                    )
+    ax1.plot(time, voltage, c=ECHEM_LINE_COLOR, zorder=0)
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
     ax1.set_xlabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
@@ -474,9 +489,10 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
-                  width_ratios=[0.0965, 1, 0.209],
+                  width_ratios=WIDTH_RATIOS,
                   height_ratios=heightratio,
-                  hspace=0.1)
+                  hspace=0.1,
+                  )
     ax0 = fig.add_subplot(gs[0,:])
     ax1 = fig.add_subplot(gs[1,1])
     if not isinstance(CBAR_REL_DICT, type(None)):
@@ -502,9 +518,13 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.xaxis.set_label_position('top')
     ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
-    ax0.tick_params(axis="x", bottom=True, top=True, labelbottom=False,
-                    labeltop=True)
-    ax1.plot(time, voltage, c=COLORS[1], zorder=0)
+    ax0.tick_params(axis="x",
+                    bottom=True,
+                    top=True,
+                    labelbottom=False,
+                    labeltop=True,
+                    )
+    ax1.plot(time, voltage, c=ECHEM_LINE_COLOR, zorder=0)
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
     ax1.set_xlabel(TIMELABEL_ECHEM, fontsize=FONTSIZE_LABELS)
@@ -542,13 +562,13 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
-                  width_ratios=[0.0965, 1, 0.209],
+                  width_ratios=WIDTH_RATIOS,
                   height_ratios=heightratio,
                   hspace=0.1)
     ax0 = fig.add_subplot(gs[0,:])
     ax1 = fig.add_subplot(gs[1,1])
     ax11 = ax1.twiny()
-    ax11.plot(time, voltage, c=COLORS[1], zorder=0)
+    ax11.plot(time, voltage, c=ECHEM_LINE_COLOR, zorder=0)
     ax1.set_xlim(time_min, time_max)
     ax11.set_xlim(time_min, time_max)
     ax1.set_ylim(voltage_min, voltage_max)
@@ -559,7 +579,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax11.tick_params(axis="x",
                     labelbottom=False,
                     labeltop=False,
-                    labelsize=FONTSIZE_TICKS)
+                    labelsize=FONTSIZE_TICKS,
+                    )
     ax11.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
     ax11.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
     ax11.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
@@ -570,14 +591,18 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
     ax1.yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
-    # for i in range(len(t_changes)):
-    #     plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
-    #              voltage_min - BREAKFACTOR_Y * voltage_range,
-    #              "|",
-    #              rotation=45)
-    if not isinstance(VLINES_ECHEM, type(None)):
-        ax11.axvline(x=0.987*t_changes[0], ls="--", c="k", lw=2, zorder=1)
-        ax11.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=1)
+    if VLINES_ECHEM is True:
+        ax11.axvline(x=VLINES_ECHEM_OFFSETS[0]*t_changes[0],
+                     ls="--", c="k",
+                     lw=2,
+                     zorder=1,
+                     )
+        ax11.axvline(x=VLINES_ECHEM_OFFSETS[1]*t_changes[1],
+                     ls="--",
+                     c="k",
+                     lw=2,
+                     zorder=1,
+                     )
         # for t in t_changes:
         #     ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
@@ -612,7 +637,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
         cbar = ax0.figure.colorbar(im,
                                    ax=ax0,
                                    format=f'%.{CBAR_REL_DICT["decimals"]}f',
-                                   ticks=CBAR_REL_DICT["ticks"])
+                                   ticks=CBAR_REL_DICT["ticks"],
+                                   )
     else:
         cbar = ax0.figure.colorbar(im, ax=ax0)
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
@@ -624,13 +650,14 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     gs = GridSpec(nrows=2,
                   ncols=3,
                   figure=fig,
-                  width_ratios=[0.0965, 1, 0.209],
+                  width_ratios=WIDTH_RATIOS,
                   height_ratios=heightratio,
-                  hspace=0.1)
+                  hspace=0.1,
+                  )
     ax0 = fig.add_subplot(gs[0,:])
     ax1 = fig.add_subplot(gs[1,1])
     ax11 = ax1.twiny()
-    ax11.plot(time, voltage, c=COLORS[1], zorder=0)
+    ax11.plot(time, voltage, c=ECHEM_LINE_COLOR, zorder=0)
     ax1.set_xlim(time_min, time_max)
     ax11.set_xlim(time_min, time_max)
     ax1.set_ylim(voltage_min, voltage_max)
@@ -641,7 +668,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax11.tick_params(axis="x",
                     labelbottom=False,
                     labeltop=False,
-                    labelsize=FONTSIZE_TICKS)
+                    labelsize=FONTSIZE_TICKS,
+                    )
     ax11.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
     ax11.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
     ax11.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_VOLTAGE))
@@ -652,14 +680,18 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax1.set_ylabel(ylabel_echem, fontsize=FONTSIZE_LABELS)
     ax1.xaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
     ax1.yaxis.set_tick_params(labelsize=FONTSIZE_TICKS)
-    # for i in range(len(t_changes)):
-    #     plt.text(t_changes[i] - BREAKFACTOR_X * time_range,
-    #              voltage_min - BREAKFACTOR_Y * voltage_range,
-    #              "|",
-    #              rotation=45)
-    if not isinstance(VLINES_ECHEM, type(None)):
-        ax11.axvline(x=0.987*t_changes[0], ls="--", c="k", lw=2, zorder=1)
-        ax11.axvline(x=0.9925*t_changes[1], ls="--", c="k", lw=2, zorder=1)
+    if VLINES_ECHEM is True:
+        ax11.axvline(x=VLINES_ECHEM_OFFSETS[0]*t_changes[0],
+                     ls="--", c="k",
+                     lw=2,
+                     zorder=1,
+                     )
+        ax11.axvline(x=VLINES_ECHEM_OFFSETS[1]*t_changes[1],
+                     ls="--",
+                     c="k",
+                     lw=2,
+                     zorder=1,
+                     )
         # for t in t_changes:
         #     ax11.axvline(x=t, ls="--", c="k", lw=2, zorder=1)
     scan_time = np.array([i * (time_range / (corr_matrix.shape[0] - 1))
@@ -677,7 +709,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.tick_params(axis="x",
                     labelbottom=False,
                     labeltop=True,
-                    labelsize=FONTSIZE_TICKS)
+                    labelsize=FONTSIZE_TICKS,
+                    )
     ax0.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
     ax0.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
     ax0.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
@@ -686,7 +719,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     cbar = ax0.figure.colorbar(im,
                                ax=ax0,
                                format=f'%.1f',
-                               ticks=np.linspace(0, 1, 6))
+                               ticks=np.linspace(0, 1, 6),
+                               )
     cbar.set_label(label=CBARLABEL, size=FONTSIZE_LABELS)
     plt.savefig(f"png/{basename}correlation_matrix_echem_t_x_v_abs_x={xmin}-{xmax}.png", bbox_inches="tight")
     plt.savefig(f"pdf/{basename}correlation_matrix_echem_t_x_v_abs_x={xmin}-{xmax}.pdf", bbox_inches="tight")
