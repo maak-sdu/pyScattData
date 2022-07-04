@@ -25,6 +25,9 @@ cif_pxrd_calculate/example/txt
 csv_1d_to_2d/example/SeqRR_results_NE/
 csv_1d_to_2d/example/delimiter_fix/
 
+# DanMAX_h5_tif_extract
+DanMAX_h5_tif_extract/example/N1_BP_NVPC_p3/tif
+
 # diffpy-cmi_fit_res_stackplot
 diffpy-cmi_fit_res_stackplot/example/1x1/pdf
 diffpy-cmi_fit_res_stackplot/example/1x1/png
