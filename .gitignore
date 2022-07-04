@@ -89,6 +89,7 @@ pdfgui_fit_plot/example/png
 pdfgui_fit_plot/example/pdf
 
 # pearson_echem_plot
+pearson_echem_plot/example/npy
 pearson_echem_plot/example/png
 pearson_echem_plot/example/pdf
 pearson_echem_plot/example/svg
