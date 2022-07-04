@@ -210,10 +210,12 @@ def pearson_correlation(scatt_files, d_scatt, d_corr):
     for i in range(np.shape(corr_matrix_header)[1]):
         corr_matrix_txt = np.column_stack((corr_matrix_txt, corr_matrix_header[:,i]))
     print(f"{80*'-'}\nSaving txt file containing matrix to the 'txt' folder...")
-    np.savetxt(f'txt/{basename}correalation_matrix_x={xmin}-{xmax}.txt',
+    np.savetxt(f'txt/{basename}correlation_matrix_x={xmin}-{xmax}.txt',
                corr_matrix_txt,
                fmt='%s',
                delimiter='\t')
+    np.save(f"npy/{basename}correlation_matrix_x={xmin}-{xmax}.npy",
+            corr_matrix,)
     print(f"{80*'-'}\nPlotting...\n\tcorrelation matrix on relative scale...")
     if not isinstance(PLOT_STYLE, type(None)):
         plt.style.use(bg_mpl_style)
@@ -450,13 +452,13 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.xaxis.set_label_position('top')
-    ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax0.tick_params(axis="x",
                     bottom=True,
                     top=True,
                     labelbottom=False,
                     labeltop=True,
                     )
+    ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax1.plot(time, voltage, c=ECHEM_LINE_COLOR, zorder=0)
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
@@ -517,13 +519,13 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.set_xlabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.set_ylabel(AXESLABEL, fontsize=FONTSIZE_LABELS)
     ax0.xaxis.set_label_position('top')
-    ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax0.tick_params(axis="x",
                     bottom=True,
                     top=True,
                     labelbottom=False,
                     labeltop=True,
                     )
+    ax0.tick_params(axis='both', labelsize=FONTSIZE_TICKS)
     ax1.plot(time, voltage, c=ECHEM_LINE_COLOR, zorder=0)
     ax1.set_xlim(np.amin(time), np.amax(time))
     ax1.set_ylim(voltage_min, voltage_max)
@@ -627,7 +629,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.tick_params(axis="x",
                     labelbottom=False,
                     labeltop=True,
-                    labelsize=FONTSIZE_TICKS)
+                    )
+    ax0.tick_params(axis="both", labelsize=FONTSIZE_TICKS)
     ax0.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
     ax0.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
     ax0.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
@@ -709,8 +712,8 @@ def pearson_echem_plotter(d_corr, d_echem, d_plot):
     ax0.tick_params(axis="x",
                     labelbottom=False,
                     labeltop=True,
-                    labelsize=FONTSIZE_TICKS,
                     )
+    ax0.tick_params(axis="both", labelsize=FONTSIZE_TICKS)
     ax0.xaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
     ax0.xaxis.set_minor_locator(MultipleLocator(TICKINDEX_MINOR_ECHEM_TIME))
     ax0.yaxis.set_major_locator(MultipleLocator(TICKINDEX_MAJOR_ECHEM_TIME))
@@ -740,7 +743,8 @@ def main():
     pdf_path = Path.cwd() / "pdf"
     svg_path = Path.cwd() / "svg"
     txt_path = Path.cwd() / "txt"
-    output_paths = [png_path, pdf_path, svg_path, txt_path]
+    npy_path = Path.cwd() / "npy"
+    output_paths = [png_path, pdf_path, svg_path, txt_path, npy_path]
     for p in output_paths:
         if not p.exists():
             p.mkdir()
