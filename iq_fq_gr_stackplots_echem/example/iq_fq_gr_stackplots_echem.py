@@ -206,6 +206,13 @@ def iq_fq_gr_stackplot_echem_plot(d, output_folders):
                            )
         axs[i].xaxis.set_major_locator(MultipleLocator(PLOT_DICT["major_tick_index_x"]))
         axs[i].xaxis.set_minor_locator(MultipleLocator(PLOT_DICT["major_tick_index_x"] / 5))
+        if i == 0:
+            title = "(a)"
+        elif i == 1:
+            title = "(b)"
+        elif i == 2:
+            title = "(c)"
+        axs[i].set_title(title, fontdict = dict(fontsize=24), pad = 10)
     axs31 = axs[3].twinx()
     axs[3].plot(voltage, time, lw=PLOT_DICT["linewidth_echem"])
     axs[3].set_xlim(PLOT_DICT["voltage_min"], PLOT_DICT["voltage_max"])
@@ -248,6 +255,7 @@ def iq_fq_gr_stackplot_echem_plot(d, output_folders):
     if not isinstance(VLINES_ECHEM, type(None)):
         axs[3].axhline(y=0.99*t_changes[0], ls="--", c="k", lw=3, zorder=1)
         axs[3].axhline(y=0.995*t_changes[1], ls="--", c="k", lw=3, zorder=1)
+    axs[3].set_title("(d)", fontdict = dict(fontsize=24), pad = 10)
     for e in output_folders:
         plt.savefig(f"{e}/iq_fq_gr_stackplot_echem.{e}", bbox_inches="tight")
     plt.close()
