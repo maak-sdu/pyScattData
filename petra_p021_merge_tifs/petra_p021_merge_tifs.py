@@ -34,23 +34,6 @@ def dict_basename_cyclenumber_sort(tifs, filename_syntax):
     return d
 
 
-# def dict_basename_sort(tifs):
-#     d = {}
-#     for tif in tifs:
-#         tifname = tif.stem
-#         basename_split = tifname.split("_")
-#         basename = basename_split[0]
-#         for i in range(1, len(basename_split)-1):
-#             basename += f"{basename_split[i]}"
-#         try:
-#             d[basename]
-#         except KeyError:
-#             d[basename] = defaultdict(list)
-#         d[basename].append(tif)
-#
-#     return d
-
-
 def tif_merge_log(d_tif, filename_syntax, subframes_exp, output_path):
     d_merged = {}
     dt = str(datetime.now()).split("-")
