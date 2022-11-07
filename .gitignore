@@ -79,6 +79,9 @@ iq_fq_gr_stackplots_echem/example/svg
 iq_sq_fq_gr_plot/example/pdf
 iq_sq_fq_gr_plot/example/png
 
+# nmf_extract
+nmf_extract/example/gr
+
 # nmf_plot
 nmf_plot/example/pdf
 nmf_plot/example/png
