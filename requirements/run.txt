@@ -1,0 +1,11 @@
+numpy
+pandas
+scipy
+matplotlib-base
+bg-mpl-stylesheets
+diffpy.utils
+diffpy.structure
+scikit-beam
+h5py
+fabio
+jupyterlab
