@@ -41,8 +41,8 @@ When running this notebook, the calibration gui (graphical user interface),
 `pyFAI-calib2` will run. Subsequently, the azimuthal integration gui,
 `pyFAI-integrate` will run. Finally, integrated files will be plotted.
 
-For pyFAI documentation, please see:
+For pyFAI documentation, please see
 https://pyfai.readthedocs.io/en/master/index.html
 
-Various cookbook recipes and tutorials are also available:
+Various cookbook recipes and tutorials can be found at
 https://pyfai.readthedocs.io/en/master/usage/index.html
