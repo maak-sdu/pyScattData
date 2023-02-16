@@ -42,7 +42,7 @@ When running this notebook, the calibration gui (graphical user interface),
 `pyFAI-integrate` will run. Finally, integrated files will be plotted.
 
 For pyFAI documentation, please see
-https://pyfai.readthedocs.io/en/master/index.html
+https://pyfai.readthedocs.io/en/master/index.html.
 
 Various cookbook recipes and tutorials can be found at
-https://pyfai.readthedocs.io/en/master/usage/index.html
+https://pyfai.readthedocs.io/en/master/usage/index.html.
