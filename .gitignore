@@ -99,18 +99,7 @@ pearson_echem_plot/example/pdf
 pearson_echem_plot/example/svg
 pearson_echem_plot/example/txt
 
-# pyfai_notebook
-pyfai_notebook/example/.ipynb_checkpoints
-pyfai_notebook/example/png
-pyfai_notebook/example/pdf
-pyfai_notebook/example/svg
-pyfai_notebook/example/npy/dat_nan_to_zero
-pyfai_notebook/example/npy/scan-0921_avg.dat
-pyfai_notebook/example/json
-pyfai_notebook/example/poni
-pyfai_notebook/example/sac_off
-pyfai_notebook/example/sac_on
-
+# pyfai_calibration_integration
 pyfai_calibration_integration/example/.ipynb_checkpoints
 pyfai_calibration_integration/example/png
 pyfai_calibration_integration/example/pdf
