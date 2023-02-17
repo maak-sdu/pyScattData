@@ -111,6 +111,17 @@ pyfai_notebook/example/poni
 pyfai_notebook/example/sac_off
 pyfai_notebook/example/sac_on
 
+pyfai_calibration_integration/example/.ipynb_checkpoints
+pyfai_calibration_integration/example/png
+pyfai_calibration_integration/example/pdf
+pyfai_calibration_integration/example/svg
+pyfai_calibration_integration/example/npy/dat_nan_to_zero
+pyfai_calibration_integration/example/npy/scan-0921_avg.dat
+pyfai_calibration_integration/example/json
+pyfai_calibration_integration/example/poni
+pyfai_calibration_integration/example/sac_off
+pyfai_calibration_integration/example/sac_on
+
 # ras_to_csv_convert_plot
 ras_to_csv_convert_plot/csv
 ras_to_csv_convert_plot/pdf
