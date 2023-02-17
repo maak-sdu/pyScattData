@@ -1,4 +1,4 @@
-# pyFAI notebook
+# pyFAI calibration and integration
 
 ## Setup an installation
 Create a dedicated `conda` environment called `pyfai_env` and install
@@ -30,6 +30,12 @@ code
 When you have opened the `.ipynb` file, make sure that you are running the
 kernel using your `pyfai_env` conda environment.
 
+Instead of running the program as an `.ipynb`, you can also run it as a `.py`
+file. Navigate to the directory of the `.py` file and execute.
+```
+python pyfai_calibration_integration.py
+```
+
 ## pyFAI: Fast Azimuthal Integration using Python
 PyFAI is a python libary for azimuthal integration of X-ray/neutron/electron
 scattering data acquired with area detectors. For this, images needs to be
@@ -37,7 +43,7 @@ re-binned in polar coordinate systems. Additional tools are provided to
 calibrate the experimental setup, i.e. define where the detector is positioned
 in space considering the sample and the incident beam.
 
-When running this notebook, the calibration gui (graphical user interface),
+When running this code, the calibration gui (graphical user interface),
 `pyFAI-calib2` will run. Subsequently, the azimuthal integration gui,
 `pyFAI-integrate` will run. Finally, integrated files will be plotted.
 
