@@ -7,5 +7,6 @@ diffpy.utils
 diffpy.structure
 scikit-beam
 h5py
+hdf5plugin
 fabio
 jupyterlab
