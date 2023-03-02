@@ -53,6 +53,11 @@ fgr_res_to_gr/example/gr
 gr_plot/example/pdf
 gr_plot/example/png
 
+# h5_balder_extract
+h5_balder_extract/example/npy
+h5_balder_extract/example/tif
+h5_balder_extract/example/png
+
 #  h5_extract_write_plot
 h5_extract_write_plot/old
 h5_extract_write_plot/example/pdf
