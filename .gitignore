@@ -58,6 +58,12 @@ h5_balder_extract/example/npy
 h5_balder_extract/example/tif
 h5_balder_extract/example/png
 
+# h5_balder_master_merge
+h5_balder_master_merge/example/npy
+h5_balder_master_merge/example/pdf
+h5_balder_master_merge/example/png
+h5_balder_master_merge/example/svg
+
 #  h5_extract_write_plot
 h5_extract_write_plot/old
 h5_extract_write_plot/example/pdf
