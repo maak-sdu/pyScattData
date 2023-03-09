@@ -99,6 +99,11 @@ nmf_plot/example/pdf
 nmf_plot/example/png
 nmf_plot/example/svg
 
+# npy_plot
+npy_plot/example/pdf
+npy_plot/example/png
+npy_plot/example/svg
+
 # pdfgui_fit_plot
 pdfgui_fit_plot/example/png
 pdfgui_fit_plot/example/pdf
