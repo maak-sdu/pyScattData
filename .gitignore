@@ -160,6 +160,15 @@ scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/wl_sdd.txt
 # tif_plot
 tif_plot/example/png
 
+# xy_bkg_subtraction
+xy_bkg_subtraction/example/csv
+xy_bkg_subtraction/example/data_bkg-sub
+xy_bkg_subtraction/example/npy
+xy_bkg_subtraction/example/pdf
+xy_bkg_subtraction/example/png
+xy_bkg_subtraction/example/svg
+xy_bkg_subtraction/example/scale.txt
+
 # xy_overview
 xy_overview/example/fq/pdf
 xy_overview/example/fq/png
