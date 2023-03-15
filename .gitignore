@@ -162,10 +162,13 @@ tif_plot/example/png
 
 # xy_bkg_subtraction
 xy_bkg_subtraction/example/csv
+xy_bkg_subtraction/example/data_all
 xy_bkg_subtraction/example/data_bkg-sub
+xy_bkg_subtraction/example/data_dummy
 xy_bkg_subtraction/example/npy
 xy_bkg_subtraction/example/pdf
 xy_bkg_subtraction/example/png
+xy_bkg_subtraction/example/raw
 xy_bkg_subtraction/example/svg
 xy_bkg_subtraction/example/scale.txt
 
