@@ -215,6 +215,22 @@ def main():
                  f"the '{data_path.name}' folder and\nrerun the program."
                  f"\n{80*'-'}"
                  )
+    x = np.loadtxt(data_files[0])[:, 0]
+    xmin, xmax = np.amin(x), np.amax(x)
+    print(f"{80*'-'}\nMinimum x-value in data: {xmin}"
+          f"\nMaximum x-value in data: {xmax}\n{80*'-'}"
+          )
+    xmin = float(input(f"Please provide the minimum x-value to plot: "))
+    xmax = float(input(f"Please provide the maximum x-value to plot: "))
+    xmin_index, xmax_index = 0, -1
+    for i in range(len(x)):
+        if xmin <= x[i]:
+            xmin_index = i
+            break
+    for i in range(len(x)):
+        if xmax <= x[i]:
+            xmax_index = i
+            break
     bkg_files = list(bkg_path.glob("*.*"))
     if len(bkg_files) == 0:
         sys.exit(f"{80*'-'}\nNo background file was found in the "
@@ -370,7 +386,12 @@ def main():
     for p in plot_paths:
         if not p.exists():
             p.mkdir()
-    plot(array, duration / 60**2, D_PLOT, basename, plot_paths)
+    plot(array[xmin_index:xmax_index+1, :], 
+         duration / 60**2, 
+         D_PLOT, 
+         basename, 
+         plot_paths,
+         )
     print(f"Done plotting.\nPlease see the {plot_folders} folders.\n{80*'-'}\n"
           f"Program done."
           )
