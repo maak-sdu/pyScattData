@@ -161,6 +161,7 @@ scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/wl_sdd.txt
 tif_plot/example/png
 
 # xy_bkg_subtraction
+xy_bkg_subtraction/example/.ipynb_checkpoints
 xy_bkg_subtraction/example/csv
 xy_bkg_subtraction/example/data_all
 xy_bkg_subtraction/example/data_bkg-sub
