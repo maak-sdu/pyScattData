@@ -45,7 +45,7 @@ ECHEMLABEL_DICT = {"V_t[h]": dict(x = r"$t$ $[\mathrm{h}]$",
 
 # Plot inputs
 DPI = 600
-FIGSIZE = (8,6)
+FIGSIZE = (12,4)
 FONTSIZE_LABELS = 20
 FONTSIZE_TICKS = 16
 XLABEL_COMPS = r"$r$ $[\mathrm{\AA}]$"
