@@ -74,12 +74,12 @@ VLINES_ECHEM = True
 def diverging_cmap_generate(rgb_start, rgb_end):
     N = 256
     vals_blue = np.ones((N, 4))
-    for i in range(len(RGB_START)):
-        vals_blue[:, i] = np.linspace(RGB_START[i] / 256, 1, N)
+    for i in range(len(rgb_start)):
+        vals_blue[:, i] = np.linspace(rgb_start[i] / 256, 1, N)
     cmap_blue = ListedColormap(vals_blue)
     vals_red = np.ones((N, 4))
-    for i in range(len(RGB_END)):
-        vals_red[:, i] = np.flip(np.linspace(RGB_END[i] / 256, 1, N), axis=0)
+    for i in range(len(rgb_end)):
+        vals_red[:, i] = np.flip(np.linspace(rgb_end[i] / 256, 1, N), axis=0)
     cmap_red = ListedColormap(vals_red)
     newcolors = np.vstack((cmap_blue(np.linspace(0, 1, N)),
                            cmap_red(np.linspace(0, 1, N))
