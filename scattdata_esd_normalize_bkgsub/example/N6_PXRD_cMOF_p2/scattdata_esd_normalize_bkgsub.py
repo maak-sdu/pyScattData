@@ -1,10 +1,12 @@
 import sys
 from pathlib import Path
 import numpy as np
+import pandas as pd
 from diffpy.utils.parsers.loaddata import loadData
 from skbeam.core.utils import q_to_twotheta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from bg_mpl_stylesheet.bg_mpl_stylesheet import bg_mpl_style
 
 
 SCAN_SPLIT_CHAR = "_"
@@ -82,7 +84,7 @@ def esd_calculator_writer(data_dict, basename, file_ext, zfill, wl, sdd,
             x_rad = q_to_twotheta(x / 10, wl)
         elif xtype == r'$2\theta$' and xunit == r'$[\degree]$':
             x_rad = np.radians(x)
-        normalizer = np.array([2*np.pi*sdd*np.tan(x[i])/0.150
+        normalizer = np.array([2*np.pi*sdd*np.tan(x_rad[i])/0.150
                               for i in range(len(x))])
         esd = np.sqrt(y / normalizer)
         xye = np.column_stack((x, y, esd))
@@ -101,6 +103,7 @@ def esd_calculator_writer(data_dict, basename, file_ext, zfill, wl, sdd,
 
 def stack_plotter(data_dict, basename, data_files_ext, xtype, xunit, zfill,
                   type):
+    plt.style.use(bg_mpl_style)
     plt.figure(dpi=DPI, figsize=FIGSIZE)
     for k in data_dict.keys():
         x, y = data_dict[k][:,0], data_dict[k][:,1]
@@ -108,10 +111,11 @@ def stack_plotter(data_dict, basename, data_files_ext, xtype, xunit, zfill,
     plt.xlim(np.amin(x), np.amax(x))
     plt.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
     xlabel = f"{xtype} {xunit}"
-    ylabel = r"$I$ $[\mathrm{counts}]$"
+    ylabel = r"$I$ $[\mathrm{arb. u.}]$"
     plt.xlabel(xlabel, fontsize=FONTSIZE_LABELS)
     plt.ylabel(ylabel, fontsize=FONTSIZE_LABELS)
     plt.tick_params(axis="both", labelsize=FONTSIZE_TICKS)
+    plt.minorticks_on()
     if type == "esd":
         plt.savefig(f"png/{basename}_s.png", bbox_inches='tight')
         plt.savefig(f"pdf/{basename}_s.pdf", bbox_inches='tight')
@@ -268,6 +272,7 @@ def data_dict_overview(data_dict, xlabel, basename, xmin, xmax, xmin_index,
             y_stack = np.column_stack((y_stack, y))
     y = np.flip(y_stack[xmin_index:xmax_index, :], axis=0)
     xrange = xmax - xmin
+    plt.style.use(bg_mpl_style)
     fig, ax = plt.subplots(dpi=DPI, figsize=FIGSIZE)
     im = plt.imshow(y,
                     interpolation='nearest',
@@ -285,29 +290,40 @@ def data_dict_overview(data_dict, xlabel, basename, xmin, xmax, xmin_index,
     cbar.ax.set_ylabel(r"$I$ " "$[\mathrm{arb. u.}]$", fontsize=FONTSIZE_LABELS)
     cbar.formatter.set_powerlimits((0, 0))
     cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
-    major_ticks, minor_ticks = 5, 5
-    base_scan = 10
-    if xrange < 15:
-        base_scatt = 2
-    elif 15 <= xrange < 50:
-        base_scatt = 5
-    else:
-        base_scatt = 10
-    tickindex_scan_major = (base_scan * round(len(keys) / major_ticks /
-                            base_scan))
-    tickindex_scan_minor = tickindex_scan_major / minor_ticks
-    tickindex_scatt_major = (base_scatt * round(xrange / major_ticks /
-                             base_scatt))
-    tickindex_scatt_minor = tickindex_scatt_major / minor_ticks
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(tickindex_scan_major))
-    ax.xaxis.set_minor_locator(ticker.MultipleLocator(tickindex_scan_minor))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(tickindex_scatt_major))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(tickindex_scatt_minor))
+    ax.minorticks_on()
+    # major_ticks, minor_ticks = 5, 5
+    # base_scan = 10
+    # if xrange < 15:
+    #     base_scatt = 2
+    # elif 15 <= xrange < 50:
+    #     base_scatt = 5
+    # else:
+    #     base_scatt = 10
+    # tickindex_scan_major = (base_scan * round(len(keys) / major_ticks /
+    #                         base_scan))
+    # tickindex_scan_minor = tickindex_scan_major / minor_ticks
+    # tickindex_scatt_major = (base_scatt * round(xrange / major_ticks /
+    #                          base_scatt))
+    # tickindex_scatt_minor = tickindex_scatt_major / minor_ticks
+    # ax.xaxis.set_major_locator(ticker.MultipleLocator(tickindex_scan_major))
+    # ax.xaxis.set_minor_locator(ticker.MultipleLocator(tickindex_scan_minor))
+    # ax.yaxis.set_major_locator(ticker.MultipleLocator(tickindex_scatt_major))
+    # ax.yaxis.set_minor_locator(ticker.MultipleLocator(tickindex_scatt_minor))
     plt.savefig(f"png/{basename}_overview.png", bbox_inches="tight")
     plt.savefig(f"pdf/{basename}_overview.pdf", bbox_inches="tight")
     plt.show()
 
     return None
+
+
+def array_from_dict(d):
+    for i, k in enumerate(d.keys()):
+        if i == 0:
+            array = np.column_stack((d[k][:, 0], d[k][:, 1]))
+        else:
+            array = np.column_stack((array, d[k][:, 1]))
+
+    return array
 
 
 def main():
@@ -521,6 +537,16 @@ def main():
     scan_split_index, scan_split_index2 = -1, None
     data_dict_norm = data_files_to_dict(data_files_norm, scan_split_index,
                                         scan_split_index2, type="data")
+    array_norm = array_from_dict(data_dict_norm)
+    npy_path, csv_path = Path.cwd() / "npy", Path.cwd() / "csv"
+    for p in [npy_path, csv_path]:
+        if not p.exists():
+            p.mkdir()
+    np.save(npy_path / "data_normalized.npy", array_norm)
+    df = pd.DataFrame(array_norm, 
+                      columns=["x"]+list(range(array_norm.shape[1]-1)),
+                      )
+    df.to_csv(csv_path / "data_normalized.csv", sep=",")
     bkg_dict_norm = data_files_to_dict(bkg_file_norm, scan_split_index,
                                        scan_split_index2, type="bkg")
     data_bkg_dict_norm = data_files_to_dict(data_files_norm, scan_split_index,

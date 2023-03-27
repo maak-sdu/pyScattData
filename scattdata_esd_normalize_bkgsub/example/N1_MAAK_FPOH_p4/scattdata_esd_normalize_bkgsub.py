@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import numpy as np
+import pandas as pd
 from diffpy.utils.parsers.loaddata import loadData
 from skbeam.core.utils import q_to_twotheta
 import matplotlib.pyplot as plt
@@ -83,7 +84,7 @@ def esd_calculator_writer(data_dict, basename, file_ext, zfill, wl, sdd,
             x_rad = q_to_twotheta(x / 10, wl)
         elif xtype == r'$2\theta$' and xunit == r'$[\degree]$':
             x_rad = np.radians(x)
-        normalizer = np.array([2*np.pi*sdd*np.tan(x[i])/0.150
+        normalizer = np.array([2*np.pi*sdd*np.tan(x_rad[i])/0.150
                               for i in range(len(x))])
         esd = np.sqrt(y / normalizer)
         xye = np.column_stack((x, y, esd))
@@ -315,6 +316,16 @@ def data_dict_overview(data_dict, xlabel, basename, xmin, xmax, xmin_index,
     return None
 
 
+def array_from_dict(d):
+    for i, k in enumerate(d.keys()):
+        if i == 0:
+            array = np.column_stack((d[k][:, 0], d[k][:, 1]))
+        else:
+            array = np.column_stack((array, d[k][:, 1]))
+
+    return array
+
+
 def main():
     """
     This will run by default when the file is executed using
@@ -526,6 +537,16 @@ def main():
     scan_split_index, scan_split_index2 = -1, None
     data_dict_norm = data_files_to_dict(data_files_norm, scan_split_index,
                                         scan_split_index2, type="data")
+    array_norm = array_from_dict(data_dict_norm)
+    npy_path, csv_path = Path.cwd() / "npy", Path.cwd() / "csv"
+    for p in [npy_path, csv_path]:
+        if not p.exists():
+            p.mkdir()
+    np.save(npy_path / "data_normalized.npy", array_norm)
+    df = pd.DataFrame(array_norm, 
+                      columns=["x"]+list(range(array_norm.shape[1]-1)),
+                      )
+    df.to_csv(csv_path / "data_normalized.csv", sep=",")
     bkg_dict_norm = data_files_to_dict(bkg_file_norm, scan_split_index,
                                        scan_split_index2, type="bkg")
     data_bkg_dict_norm = data_files_to_dict(data_files_norm, scan_split_index,
