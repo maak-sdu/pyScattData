@@ -546,7 +546,7 @@ def main():
     df = pd.DataFrame(array_norm, 
                       columns=["x"]+list(range(array_norm.shape[1]-1)),
                       )
-    df.to_csv(csv_path / "data_normalized.csv", sep=",")
+    df.to_csv(csv_path / "data_normalized.csv", sep="\t")
     bkg_dict_norm = data_files_to_dict(bkg_file_norm, scan_split_index,
                                        scan_split_index2, type="bkg")
     data_bkg_dict_norm = data_files_to_dict(data_files_norm, scan_split_index,
