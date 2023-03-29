@@ -10,3 +10,4 @@ h5py
 hdf5plugin
 fabio
 jupyterlab
+ipympl
