@@ -1,5 +1,8 @@
 # Directories to be ignored.
 
+# .idea
+.idea
+
 # asc_to_csv
 asc_to_csv/example/csv
 asc_to_csv/example/pdf
