@@ -230,6 +230,13 @@ xy_overview_echem_t_x_v/example/pdf
 xy_overview_echem_t_x_v/example/png
 xy_overview_echem_t_x_v/example/svg
 
+# xy_qspace_bkg_scales_subtraction
+xy_qspace_bkg_scales_subtraction/example/chi_bkgsub
+xy_qspace_bkg_scales_subtraction/example/pdf
+xy_qspace_bkg_scales_subtraction/example/png
+xy_qspace_bkg_scales_subtraction/example/svg
+xy_qspace_bkg_scales_subtraction/example/txt
+
 # xy_stackplot
 xy_stackplot/example/fq/pdf
 xy_stackplot/example/fq/png
