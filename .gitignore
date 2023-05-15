@@ -14,12 +14,12 @@ cgr_stackplot/example/cgr/
 cgr_stackplot/example/pdf/
 cgr_stackplot/example/pdfgui/
 cgr_stackplot/example/png/
+cgr_stackplot/example/svg/
 
 # cif_cgr_calculate_diffpy
 cif_cgr_calculate_diffpy/example/cgr/
 cif_cgr_calculate_diffpy/example/pdf/
 cif_cgr_calculate_diffpy/example/png/
-cif_cgr_calculate_diffpy/example/svg/
 
 # cif_pxrd_calculate
 cif_pxrd_calculate/example/pdf
