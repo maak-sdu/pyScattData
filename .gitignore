@@ -19,6 +19,7 @@ cgr_stackplot/example/png/
 cif_cgr_calculate_diffpy/example/cgr/
 cif_cgr_calculate_diffpy/example/pdf/
 cif_cgr_calculate_diffpy/example/png/
+cif_cgr_calculate_diffpy/example/svg/
 
 # cif_pxrd_calculate
 cif_pxrd_calculate/example/pdf
