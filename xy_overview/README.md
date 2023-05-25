@@ -4,7 +4,7 @@ The data files are expected to be alpha numerically ordered such that they are
 read by the program in the right order. The order in which data files are read
 can be seen from the terminal print.
 
-## Flow of the program
+## Flow of the program (.py file)
 
 ### Directory structure
 First time, the code is run, it will look for a directory called `data`. If this
@@ -46,3 +46,15 @@ the color scale of the color bar. Again, plots are saved to the output folders.
 
 Again, the user is asked whether an additional customary plot is desired. This
 continues until the point where this is not the case and the program terminates.
+
+## iPython notebook (.ipynb file)
+
+An iPython notebook for creating an overview plot is also available.
+
+The iPython notebook can be executed using `jupyter-notebook` and/or 
+`jupyter-lab`. If the settings in the .ipynb file are already set to the desired
+values, the code can also be executed from the command line as one would do for
+a .py file:
+```
+ipython xy_overview.ipynb
+```
