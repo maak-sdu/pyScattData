@@ -1,4 +1,4 @@
-# Merging .tif files from *exsitu* total scattering
+# Merging .tif files from x-ray total scattering
 
 This code is written for merging subframes from total scattering 
 experiments conducted on beamline P02.1, PETRA III, DESY.
