@@ -1,0 +1,12 @@
+numpy
+matplotlib
+pandas
+seaborn
+scipy
+pyfai
+pyopencl
+scikit-image
+scikit-beam
+numba
+jupyterlab
+ipympl
