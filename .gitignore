@@ -120,7 +120,7 @@ operando_pipeline/chi_calib_esd
 operando_pipeline/chi_esd
 operando_pipeline/chi_esd_norm
 operando_pipeline/chi_esd_norm_bkgsub
-operando_pipeline/msk_static
+# operando_pipeline/msk_static
 operando_pipeline/npt_calib
 operando_pipeline/npy_mask
 operando_pipeline/pdf
