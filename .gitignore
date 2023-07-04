@@ -109,6 +109,21 @@ npy_plot/example/pdf
 npy_plot/example/png
 npy_plot/example/svg
 
+# operando_pipeline
+operando_pipeline/bkg_scale.txt
+operando_pipeline/chi
+operando_pipeline/chi_bkg
+operando_pipeline/chi_bkg_esd
+operando_pipeline/chi_bkg_esd_norm
+operando_pipeline/chi_calib
+operando_pipeline/chi_calib_esd
+operando_pipeline/chi_esd
+operando_pipeline/chi_esd_norm
+operando_pipeline/chi_esd_norm_bkgsub
+operando_pipeline/pdf
+operando_pipeline/png
+operando_pipeline/svg
+
 # pdfgui_fit_plot
 pdfgui_fit_plot/example/png
 pdfgui_fit_plot/example/pdf
