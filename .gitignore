@@ -172,6 +172,14 @@ scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/png
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/svg
 scattdata_esd_normalize_bkgsub/example/N6_PXRD_cMOF_p2/wl_sdd.txt
 
+# stoe_xy_bkgsub
+stoe_xy_bkgsub/bkg_binned
+stoe_xy_bkgsub/data_binned
+stoe_xy_bkgsub/data_binned_bkgsub
+stoe_xy_bkgsub/pdf
+stoe_xy_bkgsub/png
+stoe_xy_bkgsub/svg
+
 # tif_plot
 tif_plot/example/png
 
